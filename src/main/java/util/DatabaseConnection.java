@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     static {
         try {
-            Class.forName("org.postgresql.Driver"); // Добавьте эту строку
+            Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("PostgreSQL JDBC Driver not found!", e);
         }

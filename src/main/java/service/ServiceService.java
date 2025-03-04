@@ -111,6 +111,8 @@ public class ServiceService {
             int id = inputValidator.readIntInput(inputs);
 
             Service existing = serviceDAO.getServiceById(id);
+            System.out.println("Current service details:");
+            System.out.println(existing);
             if (existing == null) {
                 System.out.println("Service not found!");
                 return;
@@ -120,7 +122,7 @@ public class ServiceService {
             updatedService.setId(id);
 
             while (true) {
-                System.out.print("New name [" + existing.getName() + "]: ");
+                System.out.print("New name (press Enter to keep current):");
                 String input = scanner.nextLine().trim();
                 if (input.isEmpty()) {
                     updatedService.setName(existing.getName());
@@ -134,7 +136,7 @@ public class ServiceService {
             }
 
             while (true) {
-                System.out.print("New category [" + existing.getCategory() + "]: ");
+                System.out.print("New category (press Enter to keep current): ");
                 String input = scanner.nextLine().trim();
                 if (input.isEmpty()) {
                     updatedService.setCategory(existing.getCategory());
@@ -147,14 +149,14 @@ public class ServiceService {
                 System.out.println("Invalid category! Minimum 3 letters (a-z, spaces, hyphens)");
             }
 
-            System.out.print("New cost [" + existing.getCost() + "]: ");
+            System.out.print("New cost (press Enter to keep current): ");
             String costInput = scanner.nextLine().trim();
             updatedService.setCost(costInput.isEmpty() ?
                     existing.getCost() :
                     inputValidator.readPositiveIntInput(costInput, "cost"));
 
             while (true) {
-                System.out.print("New duration [" + existing.getFormattedDuration() + "]: ");
+                System.out.print("New duration (press Enter to keep current): ");
                 String input = scanner.nextLine().trim();
                 if (input.isEmpty()) {
                     updatedService.setDuration(existing.getDuration());

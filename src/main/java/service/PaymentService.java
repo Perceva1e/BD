@@ -116,18 +116,23 @@ public class PaymentService {
             System.out.println("Current payment details:");
             System.out.println(existing);
 
-            System.out.print("New payment type (Credit Card/Debit Card/Cash/Bank Transfer) [Enter to keep]: ");
-            String typeInput = scanner.nextLine().trim();
-            if (!typeInput.isEmpty()) {
-                if (List.of("Credit Card", "Debit Card", "Cash", "Bank Transfer").contains(typeInput)) {
-                    existing.setPaymentType(typeInput);
-                } else {
-                    System.err.println("Invalid payment type! Keeping current value.");
+
+            while(true) {
+                System.out.print("New payment type (Credit Card/Debit Card/Cash/Bank Transfer) [Enter to keep]: ");
+                String typeInput = scanner.nextLine().trim();
+                if (!typeInput.isEmpty()) {
+                    if (List.of("Credit Card", "Debit Card", "Cash", "Bank Transfer").contains(typeInput)) {
+                        existing.setPaymentType(typeInput);
+                    } else {
+                        System.out.println("Invalid payment type! Keeping current value.");
+                    }
                 }
+                if (typeInput.isEmpty()) break;
             }
 
-            System.out.print("New payment date (YYYY-MM-DD) [Enter to keep]: ");
-            while (true) {
+
+            while(true) {
+                System.out.print("New payment date (YYYY-MM-DD) [Enter to keep]: ");
                 String dateInput = scanner.nextLine().trim();
                 if (dateInput.isEmpty()) break;
 
@@ -144,43 +149,54 @@ public class PaymentService {
                 }
             }
 
-            System.out.print("New payment method (Online/In Person/ATM) [Enter to keep]: ");
-            String methodInput = scanner.nextLine().trim();
-            if (!methodInput.isEmpty()) {
-                if (List.of("Online", "In Person", "ATM").contains(methodInput)) {
-                    existing.setPaymentMethod(methodInput);
-                } else {
-                    System.err.println("Invalid payment method! Keeping current value.");
-                }
-            }
 
-            System.out.print("New status (Pending/Completed/Failed/Refunded) [Enter to keep]: ");
-            String statusInput = scanner.nextLine().trim();
-            if (!statusInput.isEmpty()) {
-                if (List.of("Pending", "Completed", "Failed", "Refunded").contains(statusInput)) {
-                    existing.setStatus(statusInput);
-                } else {
-                    System.err.println("Invalid status! Keeping current value.");
-                }
-            }
-
-            System.out.print("New booking ID [Enter to keep]: ");
-            String bookingIdInput = scanner.nextLine().trim();
-            if (!bookingIdInput.isEmpty()) {
-                try {
-                    int newId = Integer.parseInt(bookingIdInput);
-                    if (bookingDAO.getBookingById(newId) != null) {
-                        existing.setBookingId(newId);
+            while(true) {
+                System.out.print("New payment method (Online/In Person/ATM) [Enter to keep]: ");
+                String methodInput = scanner.nextLine().trim();
+                if (!methodInput.isEmpty()) {
+                    if (List.of("Online", "In Person", "ATM").contains(methodInput)) {
+                        existing.setPaymentMethod(methodInput);
                     } else {
-                        System.err.println("Booking ID not found! Keeping current value.");
+                        System.out.println("Invalid payment method! Keeping current value.");
                     }
-                } catch (NumberFormatException e) {
-                    System.err.println("Invalid number format! Keeping current value.");
-                } catch (SQLException e) {
-                    System.err.println("Database error: " + e.getMessage());
                 }
+                if (methodInput.isEmpty()) break;
             }
 
+
+            while(true) {
+                System.out.print("New status (Pending/Completed/Failed/Refunded) [Enter to keep]: ");
+                String statusInput = scanner.nextLine().trim();
+                if (!statusInput.isEmpty()) {
+                    if (List.of("Pending", "Completed", "Failed", "Refunded").contains(statusInput)) {
+                        existing.setStatus(statusInput);
+                    } else {
+                        System.out.println("Invalid status! Keeping current value.");
+                    }
+                }
+                if (statusInput.isEmpty()) break;
+            }
+
+
+            while(true) {
+                System.out.print("New booking ID [Enter to keep]: ");
+                String bookingIdInput = scanner.nextLine().trim();
+                if (!bookingIdInput.isEmpty()) {
+                    try {
+                        int newId = Integer.parseInt(bookingIdInput);
+                        if (bookingDAO.getBookingById(newId) != null) {
+                            existing.setBookingId(newId);
+                        } else {
+                            System.err.println("Booking ID not found! Keeping current value.");
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid number format! Keeping current value.");
+                    } catch (SQLException e) {
+                        System.err.println("Database error: " + e.getMessage());
+                    }
+                }
+                if (bookingIdInput.isEmpty()) break;
+            }
             paymentDAO.updatePayment(existing);
             System.out.println("Payment updated successfully!");
 

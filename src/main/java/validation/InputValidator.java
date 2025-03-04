@@ -52,6 +52,8 @@ public class InputValidator {
             int value = readIntInput(inputs);
             if (value > 0) return value;
             System.out.printf("%s must be positive. ", fieldName);
+            Scanner scanner = new Scanner(System.in);
+            inputs = scanner.nextLine().trim();
         }
     }
 
