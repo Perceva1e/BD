@@ -48,7 +48,6 @@ public class InputValidator {
 
     public int readPositiveIntInput(String inputs, String fieldName) {
         while (true) {
-            System.out.printf("Enter %s: ", fieldName);
             int value = readIntInput(inputs);
             if (value > 0) return value;
             System.out.printf("%s must be positive. ", fieldName);

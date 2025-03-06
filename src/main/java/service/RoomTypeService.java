@@ -50,8 +50,10 @@ public class RoomTypeService {
                 }
                 System.out.println("Invalid category! Minimum 4 letters");
             }
+
+            System.out.print("Enter cost per night: ");
             String inputs = scanner.nextLine().trim();
-            roomType.setCostPerNight(inputValidator.readPositiveIntInput(inputs,"cost"));
+            roomType.setCostPerNight(inputValidator.readPositiveIntInput(inputs,"cost per night"));
 
             roomTypeDAO.addRoomType(roomType);
             System.out.println("Room type added successfully!");
@@ -126,10 +128,10 @@ public class RoomTypeService {
                 System.out.println("Invalid category! Minimum 4 letters");
             }
 
-            System.out.print("New cost (press Enter to keep current): ");
+            System.out.print("New cost per night (press Enter to keep current): ");
             inputs = scanner.nextLine().trim();
             if (!inputs.isEmpty()) {
-                existingType.setCostPerNight(inputValidator.readPositiveIntInput(inputs, "cost"));
+                existingType.setCostPerNight(inputValidator.readPositiveIntInput(inputs, "cost per night"));
             }
 
             roomTypeDAO.updateRoomType(existingType);
@@ -145,29 +147,21 @@ public class RoomTypeService {
     public void deleteRoomType(Scanner scanner) {
         try {
             System.out.print("Enter room type ID to delete: ");
-            String inputs = scanner.nextLine().trim();
-            int id = inputValidator.readIntInput(inputs);
+            int id = inputValidator.readIntInput(scanner.nextLine().trim());
 
-            if (roomTypeDAO.getRoomTypeById(id) == null) {
-                System.out.println("Room type not found!");
+            System.out.println("All room and room type will be deleted: ");
+            System.out.print("Confirm deletion? (y/n): ");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirmation.equals("y")) {
+                System.out.println("Deletion canceled");
                 return;
             }
-
-            if (roomDAO.hasRoomsWithType(id)) {
-                System.out.println("Cannot delete: There are rooms using this type!");
-                return;
-            }
-
             if (roomTypeDAO.deleteRoomType(id)) {
-                System.out.println("Room type deleted successfully!");
-            } else {
-                System.out.println("Failed to delete room type!");
+                System.out.println("Room type and all related rooms deleted!");
             }
-        } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error deleting room type: " + e.getMessage());
         }
     }
-
 }

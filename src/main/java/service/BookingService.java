@@ -1,5 +1,6 @@
 package services;
 
+import dao.PaymentDAO;
 import dao.BookingDAO;
 import dao.ClientDAO;
 import dao.EmployeeDAO;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.time.LocalDate;
 public class BookingService {
+    private final PaymentDAO paymentDAO;
     private final BookingDAO bookingDAO;
     private final ClientDAO clientDAO;
     private final EmployeeDAO employeeDAO;
@@ -19,6 +21,7 @@ public class BookingService {
         this.clientDAO = new ClientDAO();
         this.employeeDAO = new EmployeeDAO();
         this.inputValidator = new InputValidator();
+        this.paymentDAO = new PaymentDAO();
     }
 
     public void addBooking(Scanner scanner) {
@@ -55,6 +58,7 @@ public class BookingService {
                     System.out.println("Invalid date format! Use YYYY-MM-DD.");
                 }
             }
+            System.out.print("Enter cost: ");
             String inputs = scanner.nextLine().trim();
             booking.setTotalCost(inputValidator.readPositiveIntInput(inputs,"cost"));
 
@@ -231,18 +235,20 @@ public class BookingService {
     public void deleteBooking(Scanner scanner) {
         try {
             System.out.print("Enter booking ID to delete: ");
-            String inputs = scanner.nextLine().trim();
-            int id = inputValidator.readIntInput(inputs);
+            int id = inputValidator.readIntInput(scanner.nextLine().trim());
 
-            if (!bookingDAO.bookingExists(id)) {
-                System.out.println("Booking not found!");
+            System.out.println("All client, payment and booking will be deleted: ");
+            System.out.print("Confirm deletion? (y/n): ");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirmation.equals("y")) {
+                System.out.println("Deletion canceled");
                 return;
             }
+            paymentDAO.deletePaymentsByBookingId(id);
 
             if (bookingDAO.deleteBooking(id)) {
-                System.out.println("Booking deleted successfully!");
-            } else {
-                System.out.println("Failed to delete booking!");
+                System.out.println("Booking and related payments deleted!");
             }
         } catch (Exception e) {
             System.err.println("Error deleting booking: " + e.getMessage());

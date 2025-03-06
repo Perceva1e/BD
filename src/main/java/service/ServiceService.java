@@ -37,7 +37,7 @@ public class ServiceService {
                 }
                 System.out.println("Invalid category! Minimum 3 letters (a-z, spaces, hyphens)");
             }
-
+            System.out.print("Enter cost: ");
             String inputs = scanner.nextLine().trim();
             service.setCost(inputValidator.readPositiveIntInput(inputs,"cost"));
 

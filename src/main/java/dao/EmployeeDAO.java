@@ -103,6 +103,28 @@ public class EmployeeDAO {
             }
         }
     }
+    public Integer findFirstEmployeeId(String whereClause, int... params) throws SQLException {
+        String sql = "SELECT id FROM \"Employees\" " + whereClause + " ORDER BY id LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            for (int i = 0; i < params.length; i++) {
+                stmt.setInt(i + 1, params[i]);
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? rs.getInt("id") : null;
+            }
+        }
+    }
+    public Integer findFirstEmployeeId() throws SQLException {
+        String sql = "SELECT id FROM \"Employees\" ORDER BY id LIMIT 1";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            return rs.next() ? rs.getInt("id") : null;
+        }
+    }
 
     private Employee mapResultSetToEmployee(ResultSet rs) throws SQLException {
         Employee employee = new Employee();

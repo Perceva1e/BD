@@ -67,16 +67,21 @@ public class RoomTypeDAO {
     }
 
     public boolean deleteRoomType(int id) throws SQLException {
-        String sql = "DELETE FROM \"Room_types\" WHERE id = ?";
 
+        String deleteRoomsSql = "DELETE FROM \"Rooms\" WHERE room_type_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(deleteRoomsSql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
 
+        String deleteTypeSql = "DELETE FROM \"Room_types\" WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(deleteTypeSql)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;
         }
     }
-
     public RoomType getRoomTypeById(int id) throws SQLException {
         String sql = "SELECT * FROM \"Room_types\" WHERE id = ?";
 

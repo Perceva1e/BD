@@ -73,17 +73,48 @@ public class RoomDAO {
     }
 
     public boolean deleteRoom(int id) throws SQLException {
-        String sql = "DELETE FROM \"Rooms\" WHERE id = ?";
+        Integer typeId = getRoomTypeId(id);
+
+        String deleteRoomSql = "DELETE FROM \"Rooms\" WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(deleteRoomSql)) {
+            stmt.setInt(1, id);
+            stmt.executeUpdate();
+        }
+
+        if (typeId != null) {
+            String checkSql = "SELECT COUNT(*) FROM \"Rooms\" WHERE room_type_id = ?";
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(checkSql)) {
+                stmt.setInt(1, typeId);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next() && rs.getInt(1) == 0) {
+                    new RoomTypeDAO().deleteRoomType(typeId);
+                }
+            }
+        }
+        return true;
+    }
+
+    private Integer getRoomTypeId(int roomId) throws SQLException {
+        String sql = "SELECT room_type_id FROM \"Rooms\" WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
+            stmt.setInt(1, roomId);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() ? rs.getInt("room_type_id") : null;
+        }
+    }
+    public boolean deleteRoomsByTypeId(int typeId) throws SQLException {
+        String sql = "DELETE FROM \"Rooms\" WHERE room_type_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, typeId);
             return stmt.executeUpdate() > 0;
         }
     }
-
     public boolean existsRoomType(int typeId) throws SQLException {
-        String sql = "SELECT 1 FROM \"RoomTypes\" WHERE id = ?";
+        String sql = "SELECT 1 FROM \"Room_types\" WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 

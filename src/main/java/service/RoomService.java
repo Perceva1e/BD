@@ -16,10 +16,13 @@ public class RoomService {
     public void addRoom(Scanner scanner) {
         try {
             Room room = new Room();
+            System.out.print("Enter area: ");
             String inputs = scanner.nextLine().trim();
             room.setArea(inputValidator.readPositiveIntInput(inputs,"area"));
+            System.out.print("Enter nightly cost: ");
             inputs = scanner.nextLine().trim();
             room.setCost(inputValidator.readPositiveIntInput(inputs,"nightly cost"));
+            System.out.print("Enter maximum guests: ");
             inputs = scanner.nextLine().trim();
             room.setMaxGuests(inputValidator.readPositiveIntInput(inputs,"maximum guests"));
 
@@ -157,24 +160,22 @@ public class RoomService {
     public void deleteRoom(Scanner scanner) {
         try {
             System.out.print("Enter room ID to delete: ");
-            String inputs = scanner.nextLine().trim();
-            int id = inputValidator.readIntInput(inputs);
+            int id = inputValidator.readIntInput(scanner.nextLine().trim());
 
-            Room room = roomDAO.getRoomById(id);
-            if (room == null) {
-                System.out.println("Room not found!");
+            System.out.println("All room and room type will be deleted: ");
+            System.out.print("Confirm deletion? (y/n): ");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirmation.equals("y")) {
+                System.out.println("Deletion canceled");
                 return;
             }
 
             if (roomDAO.deleteRoom(id)) {
-                System.out.println("Room deleted successfully!");
-            } else {
-                System.out.println("Failed to delete room!");
+                System.out.println("Room and its type (if last room) deleted!");
             }
-        } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error deleting room: " + e.getMessage());
         }
     }
 }

@@ -1,19 +1,26 @@
 package services;
 
 import dao.ClientDAO;
+import dao.PaymentDAO;
+import dao.BookingDAO;
 import model.Client;
+import model.Booking;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 public class ClientService {
+    private final BookingDAO bookingDAO;
     private final ClientDAO clientDAO;
+    private final PaymentDAO  paymentDAO;
     private final InputValidator inputValidator;
 
     public ClientService() {
         this.clientDAO = new ClientDAO();
         this.inputValidator = new InputValidator();
+        this.bookingDAO = new BookingDAO();
+        this.paymentDAO = new PaymentDAO();
     }
     public void addClient(Scanner scanner) {
         try {
@@ -165,18 +172,27 @@ public class ClientService {
     public void deleteClient(Scanner scanner) {
         try {
             System.out.print("Enter client ID to delete: ");
-            String inputs = scanner.nextLine().trim();
-            int id = inputValidator.readIntInput(inputs);
+            int id = inputValidator.readIntInput(scanner.nextLine().trim());
 
-            if (clientDAO.getClientById(id) == null) {
-                System.out.println("Client not found!");
+            List<Booking> clientBookings = bookingDAO.getBookingsByClientId(id);
+
+            System.out.println("All client, payment and booking will be deleted: ");
+            System.out.print("Confirm deletion? (y/n): ");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirmation.equals("y")) {
+                System.out.println("Deletion canceled");
                 return;
             }
 
+            for (Booking booking : clientBookings) {
+                paymentDAO.deletePaymentsByBookingId(booking.getId());
+            }
+
+            bookingDAO.deleteBookingsByClientId(id);
+
             if (clientDAO.deleteClient(id)) {
-                System.out.println("Client deleted successfully!");
-            } else {
-                System.out.println("Error deleting client!");
+                System.out.println("Client, all bookings and related payments deleted!");
             }
         } catch (Exception e) {
             System.err.println("Error deleting client: " + e.getMessage());

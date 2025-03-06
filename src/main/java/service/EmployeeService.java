@@ -1,21 +1,29 @@
 package services;
 
 import dao.EmployeeDAO;
+import dao.BookingDAO;
 import model.Employee;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
+
 import validation.InputValidator;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
+
 public class EmployeeService {
+    private final BookingDAO bookingDAO;
     private final EmployeeDAO employeeDAO;
     private final InputValidator inputValidator;
 
     public EmployeeService() {
         this.employeeDAO = new EmployeeDAO();
         this.inputValidator = new InputValidator();
+        this.bookingDAO = new BookingDAO();
     }
+
     public void updateEmployee(Scanner scanner) {
         try {
             System.out.print("Enter employee ID to update: ");
@@ -148,9 +156,9 @@ public class EmployeeService {
                 }
                 System.out.println("Invalid position! Must contain at least 3 characters.");
             }
-
+            System.out.print("Enetr salary: ");
             String inputs = scanner.nextLine().trim();
-            employee.setSalary(inputValidator.readPositiveIntInput(inputs,"salary"));
+            employee.setSalary(inputValidator.readPositiveIntInput(inputs, "salary"));
 
 
             List<LocalDate> schedule = new ArrayList<>();
@@ -207,20 +215,46 @@ public class EmployeeService {
             System.err.println("Error adding employee: " + e.getMessage());
         }
     }
+
     public void deleteEmployee(Scanner scanner) {
         try {
+
             System.out.print("Enter employee ID to delete: ");
-            String inputs = scanner.nextLine().trim();
-            int id = inputValidator.readIntInput(inputs);
+            int id = inputValidator.readIntInput(scanner.nextLine().trim());
 
             if (!employeeDAO.employeeExists(id)) {
                 System.out.println("Employee not found!");
                 return;
             }
-            if (employeeDAO.deleteEmployee(id)) {
-                System.out.println("Employee deleted successfully!");
+
+            Integer replacementId = employeeDAO.findFirstEmployeeId();
+
+            if (replacementId != null && replacementId == id) {
+                replacementId = employeeDAO.findFirstEmployeeId("WHERE id != ?", id);
+            }
+
+            if (replacementId == null) {
+                System.out.println("Cannot delete - no other employees available!");
+                return;
+            }
+
+            System.out.println("All bookings will be reassigned to employee ID: " + replacementId);
+            System.out.print("Confirm deletion? (y/n): ");
+            String confirmation = scanner.nextLine().trim().toLowerCase();
+
+            if (!confirmation.equals("y")) {
+                System.out.println("Deletion canceled");
+                return;
+            }
+
+            bookingDAO.updateBookingsEmployee(id, replacementId);
+
+            boolean deleted = employeeDAO.deleteEmployee(id);
+
+            if (deleted) {
+                System.out.println("Employee deleted successfully! Bookings reassigned.");
             } else {
-                System.out.println("Failed to delete employee!");
+                System.out.println("Deletion failed!");
             }
         } catch (Exception e) {
             System.err.println("Error deleting employee: " + e.getMessage());

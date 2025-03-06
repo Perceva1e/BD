@@ -46,6 +46,14 @@ public class PaymentDAO {
         }
         return payments;
     }
+    public boolean deletePaymentsByBookingId(int bookingId) throws SQLException {
+        String sql = "DELETE FROM \"Payments\" WHERE booking_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, bookingId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
 
     public void updatePayment(Payment payment) throws SQLException {
         String sql = """

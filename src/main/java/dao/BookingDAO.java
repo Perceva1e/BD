@@ -84,7 +84,23 @@ public class BookingDAO {
             return stmt.executeUpdate() > 0;
         }
     }
+    public boolean deleteBookingsByClientId(int clientId) throws SQLException {
+        String sql = "DELETE FROM \"Bookings\" WHERE client_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clientId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
 
+    public boolean deleteBookingsByEmployeeId(int employeeId) throws SQLException {
+        String sql = "DELETE FROM \"Bookings\" WHERE employee_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, employeeId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
     public boolean bookingExists(int id) throws SQLException {
         String sql = "SELECT 1 FROM \"Bookings\" WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -95,6 +111,21 @@ public class BookingDAO {
                 return rs.next();
             }
         }
+    }
+    public List<Booking> getBookingsByClientId(int clientId) throws SQLException {
+        String sql = "SELECT * FROM \"Bookings\" WHERE client_id = ?";
+        List<Booking> bookings = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, clientId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                bookings.add(mapResultSetToBooking(rs));
+            }
+        }
+        return bookings;
     }
     public List<Booking> getBookingsByStatus(String status) throws SQLException {
         String sql = "SELECT * FROM \"Bookings\" WHERE status = ? ORDER BY check_in_date";
@@ -135,6 +166,23 @@ public class BookingDAO {
             }
         }
         return results;
+    }
+    public void clearEmployeeFromBookings(int employeeId) throws SQLException {
+        String sql = "UPDATE \"Bookings\" SET employee_id = NULL WHERE employee_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, employeeId);
+            stmt.executeUpdate();
+        }
+    }
+    public boolean updateBookingsEmployee(int oldEmployeeId, int newEmployeeId) throws SQLException {
+        String sql = "UPDATE \"Bookings\" SET employee_id = ? WHERE employee_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, newEmployeeId);
+            stmt.setInt(2, oldEmployeeId);
+            return stmt.executeUpdate() > 0;
+        }
     }
     private Booking mapResultSetToBooking(ResultSet rs) throws SQLException {
         Booking booking = new Booking();
