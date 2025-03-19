@@ -3,10 +3,12 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\validation\InputValidator.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\BackUpService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\BookingClientDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\EmployeeDAO.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\dto\ServiceUsageDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\ClientDAO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\EmployeeService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\RoomTypeService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\RoomType.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\dto\UnusedServiceDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\ServiceController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Payment.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\BackUpController.java
@@ -16,6 +18,7 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\controller\RoomTypeController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Booking.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Service.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\RoomTypeDAO.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\dto\ManagerBookingDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\BookingService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Employee.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\ReportService.java

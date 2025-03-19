@@ -6,6 +6,8 @@ import java.sql.*;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import dto.ServiceUsageDTO;
+import dto.UnusedServiceDTO;
 
 public class ServiceDAO {
 
@@ -122,6 +124,57 @@ public class ServiceDAO {
             }
         }
         return services;
+    }
+    public List<UnusedServiceDTO> getUnusedServices() throws SQLException {
+        String sql = """
+            SELECT s.name, s.category, s.cost
+            FROM "Services" s
+            LEFT JOIN "Bookings_Services" bs ON s.id = bs.service_id
+            WHERE bs.service_id IS NULL
+            ORDER BY s.cost DESC""";
+
+        List<UnusedServiceDTO> results = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(new UnusedServiceDTO(
+                        rs.getString("name"),
+                        rs.getString("category"),
+                        rs.getInt("cost")
+                ));
+            }
+        }
+        return results;
+    }
+    public List<ServiceUsageDTO> getServiceUsageWithDates() throws SQLException {
+        String sql = """
+            SELECT s.name, s.cost, s.duration, 
+                   b.check_in_date, b.check_out_date
+            FROM "Services" s
+            JOIN "Bookings_Services" bs ON s.id = bs.service_id
+            JOIN "Bookings" b ON bs.booking_id = b.id
+            ORDER BY s.cost DESC""";
+
+        List<ServiceUsageDTO> results = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(new ServiceUsageDTO(
+                        rs.getString("name"),
+                        rs.getInt("cost"),
+                        parsePgInterval(rs.getString("duration")),
+                        rs.getDate("check_in_date").toLocalDate(),
+                        rs.getDate("check_out_date").toLocalDate()
+                ));
+            }
+        }
+        return results;
     }
     private Service mapResultSetToService(ResultSet rs) throws SQLException {
         Service service = new Service();

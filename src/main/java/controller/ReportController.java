@@ -29,6 +29,9 @@ public class ReportController {
             System.out.println("8. Large Capacity Rooms (>2 guests)");
             System.out.println("9. Rooms with Type Info");
             System.out.println("10. Long Services (>1 hour)");
+            System.out.println("11. Unused Services Report");
+            System.out.println("12. Manager Bookings Report");
+            System.out.println("13. Service Usage Timeline");
             System.out.println("0. Back to Main Menu");
             System.out.print("Enter choice: ");
 
@@ -46,6 +49,9 @@ public class ReportController {
                     case 8 -> printReport("Large Capacity Rooms", reportService.getLargeCapacityRooms());
                     case 9 -> printReport("Rooms with Types", reportService.getRoomsWithTypes());
                     case 10 -> printReport("Long Services", reportService.getLongServices());
+                    case 11 -> printReport("Unused Services Report",reportService.printUnusedServices());
+                    case 12 -> printReport("Manager Bookings Report",reportService.printManagerBookings());
+                    case 13 -> printReport("Service Usage Timeline",reportService.printServiceUsage());
                     case 0 -> back = true;
                     default -> System.out.println("Invalid choice!");
                 }

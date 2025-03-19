@@ -65,4 +65,13 @@ public class ReportService {
     public List<Service> getLongServices() throws SQLException {
         return serviceDAO.getServicesByDuration(Duration.ofHours(1));
     }
+    public List<UnusedServiceDTO> printUnusedServices() throws SQLException {
+        return serviceDAO.getUnusedServices();
+    }
+    public List<ManagerBookingDTO> printManagerBookings() throws SQLException {
+        return bookingDAO.getManagerBookings();
+    }
+    public List<ServiceUsageDTO> printServiceUsage() throws SQLException {
+        return serviceDAO.getServiceUsageWithDates();
+    }
 }

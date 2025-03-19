@@ -13,7 +13,9 @@ controllers\ReportController.class
 dao\RoomTypeDAO.class
 services\BackUpService.class
 controllers\BookingController.class
+dto\ManagerBookingDTO.class
 services\ReportService.class
+dto\ServiceUsageDTO.class
 controllers\EmployeeController.class
 services\RoomTypeService.class
 util\DatabaseConnection.class
@@ -33,6 +35,7 @@ dao\RoomDAO.class
 services\BookingService.class
 app\HotelApp.class
 controllers\BackUpController.class
+dto\UnusedServiceDTO.class
 dao\ServiceDAO.class
 validation\InputValidator.class
 dao\EmployeeDAO.class

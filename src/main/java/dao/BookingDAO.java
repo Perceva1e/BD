@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import dto.BookingClientDTO;
+import dto.ManagerBookingDTO;
 public class BookingDAO {
 
     public Booking getBookingById(int id) throws SQLException {
@@ -183,6 +184,31 @@ public class BookingDAO {
             stmt.setInt(2, oldEmployeeId);
             return stmt.executeUpdate() > 0;
         }
+    }
+    public List<ManagerBookingDTO> getManagerBookings() throws SQLException {
+        String sql = """
+            SELECT e.full_name, b.id, b.check_in_date, b.total_cost
+            FROM "Bookings" b
+            JOIN "Employees" e ON b.employee_id = e.id
+            WHERE e.position = 'Manager'
+            ORDER BY b.check_in_date""";
+
+        List<ManagerBookingDTO> results = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                results.add(new ManagerBookingDTO(
+                        rs.getString("full_name"),
+                        rs.getInt("id"),
+                        rs.getDate("check_in_date").toLocalDate(),
+                        rs.getInt("total_cost")
+                ));
+            }
+        }
+        return results;
     }
     private Booking mapResultSetToBooking(ResultSet rs) throws SQLException {
         Booking booking = new Booking();
