@@ -1,8 +1,11 @@
 model\Client.class
 controllers\ServiceController.class
+dto\PaymentTypeCountDTO.class
+dto\RoomTypeCostDTO.class
 services\ServiceService.class
 services\EmployeeService.class
 controllers\RoomController.class
+dto\ClientSpendingDTO.class
 controllers\RoomTypeController.class
 controllers\PaymentController.class
 dao\BookingDAO.class
@@ -15,6 +18,7 @@ services\BackUpService.class
 controllers\BookingController.class
 dto\ManagerBookingDTO.class
 services\ReportService.class
+dto\ServiceCostDTO.class
 dto\ServiceUsageDTO.class
 controllers\EmployeeController.class
 services\RoomTypeService.class
@@ -23,6 +27,7 @@ model\Booking.class
 model\Payment.class
 model\Room.class
 services\RoomService.class
+dto\PaymentStatsDTO.class
 dto\RoomWithTypeDTO.class
 model\RoomType.class
 model\Service.class

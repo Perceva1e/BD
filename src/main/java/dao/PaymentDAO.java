@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import dto.PaymentBookingDTO;
+import dto.PaymentStatsDTO;
+import dto.PaymentTypeCountDTO;
 public class PaymentDAO {
 
     public void addPayment(Payment payment) throws SQLException {
@@ -143,6 +145,44 @@ public class PaymentDAO {
             }
         }
         return results;
+    }
+    public List<PaymentStatsDTO> getPaymentStats() throws SQLException {
+        String sql = """
+        SELECT payment_method, status, COUNT(*) as count
+        FROM "Payments"
+        GROUP BY payment_method, status""";
+
+        List<PaymentStatsDTO> stats = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                stats.add(new PaymentStatsDTO(
+                        rs.getString("payment_method"),
+                        rs.getString("status"),
+                        rs.getInt("count")
+                ));
+            }
+        }
+        return stats;
+    }
+    public List<PaymentTypeCountDTO> getPaymentTypeCounts() throws SQLException {
+        String sql = "SELECT payment_type, COUNT(*) AS count FROM \"Payments\" GROUP BY payment_type";
+
+        List<PaymentTypeCountDTO> counts = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                counts.add(new PaymentTypeCountDTO(
+                        rs.getString("payment_type"),
+                        rs.getInt("count")
+                ));
+            }
+        }
+        return counts;
     }
     private Payment mapResultSetToPayment(ResultSet rs) throws SQLException {
         Payment payment = new Payment();

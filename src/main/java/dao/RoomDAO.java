@@ -177,6 +177,57 @@ public class RoomDAO {
         }
         return results;
     }
+    public List<Room> getRoomsAboveAverageArea() throws SQLException {
+        String sql = "SELECT * FROM \"Rooms\" WHERE area > (SELECT AVG(area) FROM \"Rooms\")";
+        List<Room> rooms = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                rooms.add(mapResultSetToRoom(rs));
+            }
+        }
+        return rooms;
+    }
+    public List<Room> getRoomsWithAmenities(String... amenities) throws SQLException {
+        String sql = """
+        SELECT * FROM "Rooms" 
+        WHERE amenities ~ ANY(ARRAY[?])""";
+
+        List<Room> rooms = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            Array patterns = conn.createArrayOf("text", amenities);
+            stmt.setArray(1, patterns);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    rooms.add(mapResultSetToRoom(rs));
+                }
+            }
+        }
+        return rooms;
+    }
+    public List<Room> getRoomsWithKitchenOrJacuzzi() throws SQLException {
+        String sql = """
+        (SELECT * FROM "Rooms" WHERE amenities ~ '\\yKitchen\\y')
+        UNION
+        (SELECT * FROM "Rooms" WHERE amenities ~ '\\yJacuzzi\\y')""";
+
+        List<Room> rooms = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                rooms.add(mapResultSetToRoom(rs));
+            }
+        }
+        return rooms;
+    }
     private Room mapResultSetToRoom(ResultSet rs) throws SQLException {
         Room room = new Room();
         room.setId(rs.getInt("id"));

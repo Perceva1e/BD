@@ -2,6 +2,7 @@ package dao;
 
 import model.Client;
 import util.DatabaseConnection;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -50,12 +51,12 @@ public class ClientDAO {
 
     public void updateClient(Client client) throws SQLException {
         String sql = """
-            UPDATE "Clients" 
-            SET full_name = ?, 
-                phone = ?, 
-                passport_number = ?, 
-                birth_date = ? 
-            WHERE id = ?""";
+                UPDATE "Clients" 
+                SET full_name = ?, 
+                    phone = ?, 
+                    passport_number = ?, 
+                    birth_date = ? 
+                WHERE id = ?""";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -89,6 +90,30 @@ public class ClientDAO {
                 return rs.next();
             }
         }
+    }
+
+    public List<Client> getClientsWithLuxuryBookings() throws SQLException {
+        String sql = """
+                SELECT *
+                  FROM "Clients"
+                  WHERE id IN (
+                      SELECT b.client_id
+                      FROM "Bookings" b
+                      JOIN "Rooms" r ON b.id = r.id
+                      JOIN "Room_types" rt ON r.room_type_id = rt.id
+                      WHERE rt.name = 'Luxury'
+                  );""";
+
+        List<Client> clients = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                clients.add(mapResultSetToClient(rs));
+            }
+        }
+        return clients;
     }
 
     private Client mapResultSetToClient(ResultSet rs) throws SQLException {

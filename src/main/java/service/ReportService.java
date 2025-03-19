@@ -74,4 +74,45 @@ public class ReportService {
     public List<ServiceUsageDTO> printServiceUsage() throws SQLException {
         return serviceDAO.getServiceUsageWithDates();
     }
+    public List<Employee> getHighAveragePaidEmployees() throws SQLException {
+        return employeeDAO.getHighPaidEmployees();
+    }
+
+    public List<Client> getClientsWithLuxuryBookings() throws SQLException {
+        return clientDAO.getClientsWithLuxuryBookings();
+    }
+    public List<Booking> getAboveAverageBookings() throws SQLException {
+        return bookingDAO.getAboveAverageBookings();
+    }
+
+    public List<PaymentStatsDTO> getPaymentStats() throws SQLException {
+        return paymentDAO.getPaymentStats();
+    }
+    public List<RoomTypeCostDTO> getRoomTypeCostStats() throws SQLException {
+        return roomTypeDAO.getMinMaxCostByCategory();
+    }
+
+    public List<Room> getRoomsAboveAverageArea() throws SQLException {
+        return roomDAO.getRoomsAboveAverageArea();
+    }
+
+    public List<Room> getRoomsWithAmenities() throws SQLException {
+        return roomDAO.getRoomsWithAmenities("\\yKitchen\\y", "\\yJacuzzi\\y");
+    }
+
+    public List<ServiceCostDTO> getServiceCostByCategory() throws SQLException {
+        return serviceDAO.getServiceCostByCategory();
+    }
+
+    public List<ClientSpendingDTO> getClientSpendingAboveAverage() throws SQLException {
+        return bookingDAO.getClientSpendingAboveAverage();
+    }
+
+    public List<PaymentTypeCountDTO> getPaymentTypeCounts() throws SQLException {
+        return paymentDAO.getPaymentTypeCounts();
+    }
+
+    public List<Room> getRoomsWithKitchenOrJacuzzi() throws SQLException {
+        return roomDAO.getRoomsWithKitchenOrJacuzzi();
+    }
 }

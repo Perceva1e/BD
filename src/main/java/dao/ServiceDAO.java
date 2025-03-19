@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import dto.ServiceUsageDTO;
 import dto.UnusedServiceDTO;
-
+import dto.ServiceCostDTO;
 public class ServiceDAO {
 
     public void addService(Service service) throws SQLException {
@@ -176,6 +176,24 @@ public class ServiceDAO {
         }
         return results;
     }
+    public List<ServiceCostDTO> getServiceCostByCategory() throws SQLException {
+        String sql = "SELECT category, SUM(cost) as total FROM \"Services\" GROUP BY category";
+
+        List<ServiceCostDTO> stats = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                stats.add(new ServiceCostDTO(
+                        rs.getString("category"),
+                        rs.getInt("total")
+                ));
+            }
+        }
+        return stats;
+    }
+
     private Service mapResultSetToService(ResultSet rs) throws SQLException {
         Service service = new Service();
         service.setId(rs.getInt("id"));

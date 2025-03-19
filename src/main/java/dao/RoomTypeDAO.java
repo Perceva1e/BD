@@ -5,6 +5,7 @@ import util.DatabaseConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import dto.RoomTypeCostDTO;
 
 public class RoomTypeDAO {
 
@@ -109,6 +110,29 @@ public class RoomTypeDAO {
             }
         }
         return types;
+    }
+    public List<RoomTypeCostDTO> getMinMaxCostByCategory() throws SQLException {
+        String sql = """
+        SELECT category, 
+               MIN(cost_per_night) as min_cost, 
+               MAX(cost_per_night) as max_cost
+        FROM "Room_types"
+        GROUP BY category""";
+
+        List<RoomTypeCostDTO> stats = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                stats.add(new RoomTypeCostDTO(
+                        rs.getString("category"),
+                        rs.getInt("min_cost"),
+                        rs.getInt("max_cost")
+                ));
+            }
+        }
+        return stats;
     }
     private RoomType mapResultSetToRoomType(ResultSet rs) throws SQLException {
         RoomType roomType = new RoomType();

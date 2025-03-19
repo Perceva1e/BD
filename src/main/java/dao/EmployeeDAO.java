@@ -171,4 +171,19 @@ public class EmployeeDAO {
         }
         return employees;
     }
+    public List<Employee> getHighPaidEmployees() throws SQLException {
+        String sql = "SELECT * FROM \"Employees\" WHERE salary > (SELECT AVG(salary) FROM \"Employees\")";
+        List<Employee> employees = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                employees.add(mapResultSetToEmployee(rs));
+            }
+        }
+        return employees;
+    }
+
 }

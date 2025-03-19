@@ -32,6 +32,17 @@ public class ReportController {
             System.out.println("11. Unused Services Report");
             System.out.println("12. Manager Bookings Report");
             System.out.println("13. Service Usage Timeline");
+            System.out.println("14. High Average Paid Employees");
+            System.out.println("15. Clients with Luxury Bookings");
+            System.out.println("16. Room Type Cost Stats");
+            System.out.println("17. Payment Statistics");
+            System.out.println("18. Rooms Above Average Area");
+            System.out.println("19. Rooms with Kitchen/Jacuzzi");
+            System.out.println("20. Service Costs by Category");
+            System.out.println("21. Expensive Bookings");
+            System.out.println("22. Big Spender Clients");
+            System.out.println("23. Payment Type Counts");
+            System.out.println("24. Kitchen/Jacuzzi Rooms");
             System.out.println("0. Back to Main Menu");
             System.out.print("Enter choice: ");
 
@@ -52,6 +63,17 @@ public class ReportController {
                     case 11 -> printReport("Unused Services Report",reportService.printUnusedServices());
                     case 12 -> printReport("Manager Bookings Report",reportService.printManagerBookings());
                     case 13 -> printReport("Service Usage Timeline",reportService.printServiceUsage());
+                    case 14 -> printReport("High Average Paid Employees", reportService.getHighAveragePaidEmployees());
+                    case 15 -> printReport("Clients with Luxury", reportService.getClientsWithLuxuryBookings());
+                    case 16 -> printReport("Room Type Costs", reportService.getRoomTypeCostStats());
+                    case 17 -> printReport("Payment Stats", reportService.getPaymentStats());
+                    case 18 -> printReport("Large Rooms", reportService.getRoomsAboveAverageArea());
+                    case 19 -> printReport("Special Amenities", reportService.getRoomsWithAmenities());
+                    case 20 -> printReport("Service Costs", reportService.getServiceCostByCategory());
+                    case 21 -> printReport("Expensive Bookings", reportService.getAboveAverageBookings());
+                    case 22 -> printReport("Big Spenders", reportService.getClientSpendingAboveAverage());
+                    case 23 -> printReport("Payment Types", reportService.getPaymentTypeCounts());
+                    case 24 -> printReport("Special Rooms", reportService.getRoomsWithKitchenOrJacuzzi());
                     case 0 -> back = true;
                     default -> System.out.println("Invalid choice!");
                 }

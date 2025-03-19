@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import dto.BookingClientDTO;
 import dto.ManagerBookingDTO;
+import dto.ClientSpendingDTO;
 public class BookingDAO {
 
     public Booking getBookingById(int id) throws SQLException {
@@ -205,6 +206,43 @@ public class BookingDAO {
                         rs.getInt("id"),
                         rs.getDate("check_in_date").toLocalDate(),
                         rs.getInt("total_cost")
+                ));
+            }
+        }
+        return results;
+    }
+    public List<Booking> getAboveAverageBookings() throws SQLException {
+        String sql = "SELECT * FROM \"Bookings\" WHERE total_cost > (SELECT AVG(total_cost) FROM \"Bookings\")";
+
+        List<Booking> bookings = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                bookings.add(mapResultSetToBooking(rs));
+            }
+        }
+        return bookings;
+    }
+    public List<ClientSpendingDTO> getClientSpendingAboveAverage() throws SQLException {
+        String sql = """
+        SELECT c.id, c.full_name, SUM(b.total_cost) AS total_spent
+        FROM "Clients" c
+        JOIN "Bookings" b ON c.id = b.client_id
+        GROUP BY c.id, c.full_name
+        HAVING SUM(b.total_cost) > (SELECT AVG(total_cost) FROM "Bookings")""";
+
+        List<ClientSpendingDTO> results = new ArrayList<>();
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                results.add(new ClientSpendingDTO(
+                        rs.getInt("id"),
+                        rs.getString("full_name"),
+                        rs.getInt("total_spent")
                 ));
             }
         }
