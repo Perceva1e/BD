@@ -7,6 +7,7 @@ import ui.dialogs.RoomFormDialog;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class RoomPanel extends TablePanel {
@@ -19,28 +20,32 @@ public class RoomPanel extends TablePanel {
 
     private void initTableModel() {
         try {
-            List<Room> rooms = controller.getAllRooms();
-            table.setModel(new RoomTableModel(rooms));
+            refreshData();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError(ex.getMessage());
+            table.setModel(new RoomTableModel(Collections.emptyList()));
         }
     }
 
     @Override
     protected void onAdd() {
-        new RoomFormDialog(null, controller, this::initTableModel);
+        try {
+            new RoomFormDialog(null, controller, this::safeRefresh);
+        } catch (Exception ex) {
+            showError("Error initializing form: " + ex.getMessage());
+        }
     }
 
     @Override
     protected void onEdit() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            int id = (int) table.getModel().getValueAt(row, 0);
             try {
+                int id = (int) table.getModel().getValueAt(row, 0);
                 Room room = controller.getRoomById(id);
-                new RoomFormDialog(room, controller, this::initTableModel);
+                new RoomFormDialog(room, controller, this::safeRefresh);
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showError("Database error: " + ex.getMessage());
             }
         }
     }
@@ -50,13 +55,41 @@ public class RoomPanel extends TablePanel {
         int row = table.getSelectedRow();
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
-            try {
-                controller.deleteRoom(id);
-                initTableModel();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Delete this room and all related bookings?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    controller.deleteRoom(id);
+                    safeRefresh();
+                } catch (SQLException ex) {
+                    showError("Delete failed: " + ex.getMessage());
+                }
             }
         }
+    }
+
+    private void refreshData() throws SQLException {
+        List<Room> rooms = controller.getAllRooms();
+        table.setModel(new RoomTableModel(rooms));
+        table.repaint();
+    }
+
+    private void safeRefresh() {
+        try {
+            refreshData();
+        } catch (SQLException ex) {
+            showError("Failed to refresh data: " + ex.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private static class RoomTableModel extends AbstractTableModel {
@@ -64,7 +97,7 @@ public class RoomPanel extends TablePanel {
         private final String[] columns = {"ID", "Area", "Cost", "Max Guests", "Amenities", "Type ID"};
 
         public RoomTableModel(List<Room> rooms) {
-            this.rooms = rooms;
+            this.rooms = rooms != null ? rooms : Collections.emptyList();
         }
 
         @Override public int getRowCount() { return rooms.size(); }

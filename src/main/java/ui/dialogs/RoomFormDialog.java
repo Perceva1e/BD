@@ -1,74 +1,136 @@
 package ui.dialogs;
 
 import controller.RoomController;
+import dao.RoomDAO;
 import model.Room;
+import validation.InputValidator;
 import javax.swing.*;
 import java.awt.*;
-import validation.InputValidator;
+import java.sql.SQLException;
+import java.util.regex.Pattern;
 
 public class RoomFormDialog extends JDialog {
+    private static final Pattern AMENITIES_PATTERN = Pattern.compile("^[A-Za-z0-9 ,'-]{3,}$");
     private final JTextField txtArea = new JTextField(10);
     private final JTextField txtCost = new JTextField(10);
     private final JTextField txtMaxGuests = new JTextField(10);
     private final JTextField txtAmenities = new JTextField(20);
     private final JTextField txtRoomType = new JTextField(10);
+    private final RoomController controller;
+    private final Runnable onSuccess;
     private final InputValidator validator = new InputValidator();
+    private final Room editingRoom;
 
     public RoomFormDialog(Room room, RoomController controller, Runnable onSuccess) {
-        setTitle(room == null ? "New Room" : "Edit Room");
-        setLayout(new BorderLayout());
-        setModal(true);
+        this.editingRoom = room;
+        this.controller = controller;
+        this.onSuccess = onSuccess;
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-        fieldsPanel.add(new JLabel("Area (m²):"));
+        setTitle(editingRoom == null ? "New Room" : "Edit Room");
+        initUI();
+        setupWindow();
+    }
+
+    private void initUI() {
+        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        fieldsPanel.add(new JLabel("Area (m²)*:"));
         fieldsPanel.add(txtArea);
-        fieldsPanel.add(new JLabel("Nightly Cost:"));
+        fieldsPanel.add(new JLabel("Nightly Cost ($)*:"));
         fieldsPanel.add(txtCost);
-        fieldsPanel.add(new JLabel("Max Guests:"));
+        fieldsPanel.add(new JLabel("Max Guests*:"));
         fieldsPanel.add(txtMaxGuests);
-        fieldsPanel.add(new JLabel("Amenities:"));
+        fieldsPanel.add(new JLabel("Amenities*:"));
         fieldsPanel.add(txtAmenities);
-        fieldsPanel.add(new JLabel("Room Type ID:"));
+        fieldsPanel.add(new JLabel("Room Type ID*:"));
         fieldsPanel.add(txtRoomType);
 
-        if (room != null) {
-            txtArea.setText(String.valueOf(room.getArea()));
-            txtCost.setText(String.valueOf(room.getCost()));
-            txtMaxGuests.setText(String.valueOf(room.getMaxGuests()));
-            txtAmenities.setText(room.getAmenities());
-            txtRoomType.setText(String.valueOf(room.getRoomTypeId()));
+        if (editingRoom != null) {
+            txtArea.setText(String.valueOf(editingRoom.getArea()));
+            txtCost.setText(String.valueOf(editingRoom.getCost()));
+            txtMaxGuests.setText(String.valueOf(editingRoom.getMaxGuests()));
+            txtAmenities.setText(editingRoom.getAmenities());
+            txtRoomType.setText(String.valueOf(editingRoom.getRoomTypeId()));
         }
 
         JButton btnSave = new JButton("Save");
-        btnSave.addActionListener(e -> saveRoom(room, controller, onSuccess));
+        btnSave.addActionListener(e -> saveRoom());
 
         add(fieldsPanel, BorderLayout.CENTER);
         add(btnSave, BorderLayout.SOUTH);
-        pack();
-        setLocationRelativeTo(null);
     }
 
-    private void saveRoom(Room room, RoomController controller, Runnable onSuccess) {
+    private void setupWindow() {
+        pack();
+        setLocationRelativeTo(null);
+        setModal(true);
+        setResizable(false);
+        setVisible(true);
+    }
+
+    private void saveRoom() {
         try {
-            Room newRoom = new Room();
-            if (room != null) newRoom.setId(room.getId());
+            StringBuilder errors = new StringBuilder();
 
-            newRoom.setArea(validator.readPositiveIntInput(txtArea.getText(), "Area"));
-            newRoom.setCost(validator.readPositiveIntInput(txtCost.getText(), "Cost"));
-            newRoom.setMaxGuests(validator.readPositiveIntInput(txtMaxGuests.getText(), "Max Guests"));
-            newRoom.setAmenities(txtAmenities.getText().trim());
-            newRoom.setRoomTypeId(validator.readPositiveIntInput(txtRoomType.getText(), "Room Type ID"));
+            int area = validatePositiveInt(txtArea.getText(), "Area", errors);
+            int cost = validatePositiveInt(txtCost.getText(), "Cost", errors);
+            int guests = validatePositiveInt(txtMaxGuests.getText(), "Max Guests", errors);
+            String amenities = txtAmenities.getText().trim();
+            int typeId = validatePositiveInt(txtRoomType.getText(), "Room Type ID", errors);
 
-            if (room == null) {
-                controller.addRoom(newRoom);
+            if (!AMENITIES_PATTERN.matcher(amenities).matches()) {
+                errors.append("• Invalid amenities format!\n");
+            }
+
+            if (!new RoomDAO().existsRoomType(typeId)) {
+                errors.append("• Room type ID does not exist!\n");
+            }
+
+            if (errors.length() > 0) {
+                showError("Validation errors:\n" + errors);
+                return;
+            }
+
+            Room room = new Room();
+            if (editingRoom != null) room.setId(editingRoom.getId());
+
+            room.setArea(area);
+            room.setCost(cost);
+            room.setMaxGuests(guests);
+            room.setAmenities(amenities);
+            room.setRoomTypeId(typeId);
+
+            if (editingRoom == null) {
+                controller.addRoom(room);
             } else {
-                controller.updateRoom(newRoom);
+                controller.updateRoom(room);
             }
 
             onSuccess.run();
             dispose();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            showError("Database error: " + ex.getMessage());
+        } catch (Exception ex) {
+            showError(ex.getMessage());
         }
+    }
+
+    private int validatePositiveInt(String input, String fieldName, StringBuilder errors) {
+        try {
+            int value = Integer.parseInt(input);
+            if (value <= 0) throw new NumberFormatException();
+            return value;
+        } catch (NumberFormatException e) {
+            errors.append("• ").append(fieldName).append(" must be positive integer\n");
+            return -1;
+        }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }
