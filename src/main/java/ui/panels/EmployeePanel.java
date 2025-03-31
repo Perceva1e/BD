@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 public class EmployeePanel extends TablePanel {
@@ -20,28 +21,28 @@ public class EmployeePanel extends TablePanel {
 
     private void initTableModel() {
         try {
-            List<Employee> employees = controller.getAllEmployees();
-            table.setModel(new EmployeeTableModel(employees));
+            refreshData();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError(ex.getMessage());
+            table.setModel(new EmployeeTableModel(Collections.emptyList()));
         }
     }
 
     @Override
     protected void onAdd() {
-        new EmployeeFormDialog(null, controller, this::initTableModel);
+        new EmployeeFormDialog(null, controller, this::safeRefresh);
     }
 
     @Override
     protected void onEdit() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            int id = (int) table.getModel().getValueAt(row, 0);
             try {
+                int id = (int) table.getModel().getValueAt(row, 0);
                 Employee employee = controller.getEmployeeById(id);
-                new EmployeeFormDialog(employee, controller, this::initTableModel);
+                new EmployeeFormDialog(employee, controller, this::safeRefresh);
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showError("Database error: " + ex.getMessage());
             }
         }
     }
@@ -51,13 +52,41 @@ public class EmployeePanel extends TablePanel {
         int row = table.getSelectedRow();
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
-            try {
-                controller.deleteEmployee(id);
-                initTableModel();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Delete this employee and reassign bookings?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    controller.deleteEmployee(id);
+                    safeRefresh();
+                } catch (SQLException ex) {
+                    showError("Delete failed: " + ex.getMessage());
+                }
             }
         }
+    }
+
+    private void refreshData() throws SQLException {
+        List<Employee> employees = controller.getAllEmployees();
+        table.setModel(new EmployeeTableModel(employees));
+        table.repaint();
+    }
+
+    private void safeRefresh() {
+        try {
+            refreshData();
+        } catch (SQLException ex) {
+            showError("Failed to refresh: " + ex.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private static class EmployeeTableModel extends AbstractTableModel {
@@ -65,7 +94,7 @@ public class EmployeePanel extends TablePanel {
         private final String[] columns = {"ID", "Name", "Position", "Salary", "Schedule"};
 
         public EmployeeTableModel(List<Employee> employees) {
-            this.employees = employees;
+            this.employees = employees != null ? employees : Collections.emptyList();
         }
 
         @Override public int getRowCount() { return employees.size(); }
@@ -79,7 +108,7 @@ public class EmployeePanel extends TablePanel {
                 case 0 -> employee.getId();
                 case 1 -> employee.getFullName();
                 case 2 -> employee.getPosition();
-                case 3 -> employee.getSalary();
+                case 3 -> "$" + employee.getSalary();
                 case 4 -> employee.getWorkSchedule() != null ?
                         String.join(", ", employee.getWorkSchedule()
                                 .stream()
