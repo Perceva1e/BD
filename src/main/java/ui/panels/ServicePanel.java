@@ -7,6 +7,7 @@ import ui.dialogs.ServiceFormDialog;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class ServicePanel extends TablePanel {
@@ -19,28 +20,28 @@ public class ServicePanel extends TablePanel {
 
     private void initTableModel() {
         try {
-            List<Service> services = controller.getAllServices();
-            table.setModel(new ServiceTableModel(services));
+            refreshData();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError(ex.getMessage());
+            table.setModel(new ServiceTableModel(Collections.emptyList()));
         }
     }
 
     @Override
     protected void onAdd() {
-        new ServiceFormDialog(null, controller, this::initTableModel);
+        new ServiceFormDialog(null, controller, this::safeRefresh);
     }
 
     @Override
     protected void onEdit() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            int id = (int) table.getModel().getValueAt(row, 0);
             try {
+                int id = (int) table.getModel().getValueAt(row, 0);
                 Service service = controller.getServiceById(id);
-                new ServiceFormDialog(service, controller, this::initTableModel);
+                new ServiceFormDialog(service, controller, this::safeRefresh);
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showError("Database error: " + ex.getMessage());
             }
         }
     }
@@ -50,13 +51,41 @@ public class ServicePanel extends TablePanel {
         int row = table.getSelectedRow();
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
-            try {
-                controller.deleteService(id);
-                initTableModel();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Delete this service?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    controller.deleteService(id);
+                    safeRefresh();
+                } catch (SQLException ex) {
+                    showError("Delete failed: " + ex.getMessage());
+                }
             }
         }
+    }
+
+    private void refreshData() throws SQLException {
+        List<Service> services = controller.getAllServices();
+        table.setModel(new ServiceTableModel(services));
+        table.repaint();
+    }
+
+    private void safeRefresh() {
+        try {
+            refreshData();
+        } catch (SQLException ex) {
+            showError("Failed to refresh: " + ex.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private static class ServiceTableModel extends AbstractTableModel {
@@ -64,7 +93,7 @@ public class ServicePanel extends TablePanel {
         private final String[] columns = {"ID", "Name", "Category", "Cost", "Duration"};
 
         public ServiceTableModel(List<Service> services) {
-            this.services = services;
+            this.services = services != null ? services : Collections.emptyList();
         }
 
         @Override public int getRowCount() { return services.size(); }

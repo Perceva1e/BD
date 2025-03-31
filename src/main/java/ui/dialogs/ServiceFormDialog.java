@@ -3,68 +3,132 @@ package ui.dialogs;
 import controller.ServiceController;
 import model.Service;
 import util.DurationParser;
+import validation.InputValidator;
 import javax.swing.*;
 import java.awt.*;
-import validation.InputValidator;
+import java.time.Duration;
+import java.util.regex.Pattern;
 
 public class ServiceFormDialog extends JDialog {
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z0-9 \\-]{3,}$");
+    private static final Pattern CATEGORY_PATTERN = Pattern.compile("^[A-Za-z \\-]{3,}$");
+
     private final JTextField txtName = new JTextField(20);
     private final JTextField txtCategory = new JTextField(15);
     private final JTextField txtCost = new JTextField(10);
     private final JTextField txtDuration = new JTextField(15);
+    private final ServiceController controller;
+    private final Runnable onSuccess;
+    private final Service editingService;
     private final InputValidator validator = new InputValidator();
 
     public ServiceFormDialog(Service service, ServiceController controller, Runnable onSuccess) {
-        setTitle(service == null ? "New Service" : "Edit Service");
-        setLayout(new BorderLayout());
-        setModal(true);
+        this.editingService = service;
+        this.controller = controller;
+        this.onSuccess = onSuccess;
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 5, 5));
-        fieldsPanel.add(new JLabel("Name:"));
+        setTitle(editingService == null ? "New Service" : "Edit Service");
+        initUI();
+        setupWindow();
+    }
+
+    private void initUI() {
+        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        fieldsPanel.add(new JLabel("Name* (3+ chars):"));
         fieldsPanel.add(txtName);
-        fieldsPanel.add(new JLabel("Category:"));
+        fieldsPanel.add(new JLabel("Category* (3+ chars):"));
         fieldsPanel.add(txtCategory);
-        fieldsPanel.add(new JLabel("Cost:"));
+        fieldsPanel.add(new JLabel("Cost* (>0):"));
         fieldsPanel.add(txtCost);
-        fieldsPanel.add(new JLabel("Duration (e.g. 2h30m):"));
+        fieldsPanel.add(new JLabel("Duration* (e.g. 2h30m):"));
         fieldsPanel.add(txtDuration);
 
-        if (service != null) {
-            txtName.setText(service.getName());
-            txtCategory.setText(service.getCategory());
-            txtCost.setText(String.valueOf(service.getCost()));
-            txtDuration.setText(service.getFormattedDuration());
+        if (editingService != null) {
+            txtName.setText(editingService.getName());
+            txtCategory.setText(editingService.getCategory());
+            txtCost.setText(String.valueOf(editingService.getCost()));
+            txtDuration.setText(editingService.getFormattedDuration());
         }
 
         JButton btnSave = new JButton("Save");
-        btnSave.addActionListener(e -> saveService(service, controller, onSuccess));
+        btnSave.addActionListener(e -> saveService());
 
         add(fieldsPanel, BorderLayout.CENTER);
         add(btnSave, BorderLayout.SOUTH);
-        pack();
-        setLocationRelativeTo(null);
     }
 
-    private void saveService(Service service, ServiceController controller, Runnable onSuccess) {
+    private void setupWindow() {
+        pack();
+        setLocationRelativeTo(null);
+        setModal(true);
+        setResizable(false);
+        setVisible(true);
+    }
+
+    private void saveService() {
         try {
-            Service newService = new Service();
-            if (service != null) newService.setId(service.getId());
+            StringBuilder errors = new StringBuilder();
 
-            newService.setName(txtName.getText().trim());
-            newService.setCategory(txtCategory.getText().trim());
-            newService.setCost(validator.readPositiveIntInput(txtCost.getText(), "Cost"));
-            newService.setDuration(DurationParser.parse(txtDuration.getText()));
+            String name = txtName.getText().trim();
+            if (!NAME_PATTERN.matcher(name).matches()) {
+                errors.append("• Invalid name format! (3+ chars, a-z, 0-9, hyphens)\n");
+            }
 
-            if (service == null) {
-                controller.addService(newService);
+            String category = txtCategory.getText().trim();
+            if (!CATEGORY_PATTERN.matcher(category).matches()) {
+                errors.append("• Invalid category format! (3+ chars, a-z, hyphens)\n");
+            }
+
+            int cost = 0;
+            try {
+                cost = Integer.parseInt(txtCost.getText().trim());
+                if (cost <= 0) throw new NumberFormatException();
+            } catch (NumberFormatException e) {
+                errors.append("• Cost must be positive integer\n");
+            }
+
+            Duration duration = Duration.ZERO;
+            try {
+                duration = DurationParser.parse(txtDuration.getText().trim());
+                if (duration.isZero()) {
+                    errors.append("• Duration cannot be zero\n");
+                }
+            } catch (Exception e) {
+                errors.append("• Invalid duration format\n");
+            }
+
+            if (errors.length() > 0) {
+                showError("Validation errors:\n" + errors);
+                return;
+            }
+
+            Service service = new Service();
+            if (editingService != null) service.setId(editingService.getId());
+
+            service.setName(name);
+            service.setCategory(category);
+            service.setCost(cost);
+            service.setDuration(duration);
+
+            if (editingService == null) {
+                controller.addService(service);
             } else {
-                controller.updateService(newService);
+                controller.updateService(service);
             }
 
             onSuccess.run();
             dispose();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            showError("Error saving service: " + ex.getMessage());
         }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }

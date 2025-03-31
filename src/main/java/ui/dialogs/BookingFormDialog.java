@@ -78,7 +78,6 @@ public class BookingFormDialog extends JDialog {
             StringBuilder errors = new StringBuilder();
             LocalDate today = LocalDate.now();
 
-            // Validate client ID
             int clientId = 0;
             try {
                 clientId = Integer.parseInt(txtClientId.getText().trim());
@@ -89,7 +88,6 @@ public class BookingFormDialog extends JDialog {
                 errors.append("• Invalid Client ID format\n");
             }
 
-            // Validate employee ID
             int employeeId = 0;
             try {
                 employeeId = Integer.parseInt(txtEmployeeId.getText().trim());
@@ -100,7 +98,6 @@ public class BookingFormDialog extends JDialog {
                 errors.append("• Invalid Employee ID format\n");
             }
 
-            // Validate dates
             LocalDate checkIn = null;
             LocalDate checkOut = null;
             try {
@@ -121,7 +118,6 @@ public class BookingFormDialog extends JDialog {
                 errors.append("• Invalid check-out date format\n");
             }
 
-            // Validate cost
             int totalCost = 0;
             try {
                 totalCost = Integer.parseInt(txtTotalCost.getText().trim());
@@ -130,7 +126,6 @@ public class BookingFormDialog extends JDialog {
                 errors.append("• Invalid cost format\n");
             }
 
-            // Validate status
             String status = (String) cmbStatus.getSelectedItem();
             if (!validator.isValidStatus(status)) {
                 errors.append("• Invalid status selection\n");
