@@ -7,6 +7,7 @@ import ui.dialogs.BookingFormDialog;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class BookingPanel extends TablePanel {
@@ -19,28 +20,28 @@ public class BookingPanel extends TablePanel {
 
     private void initTableModel() {
         try {
-            List<Booking> bookings = controller.getAllBookings();
-            table.setModel(new BookingTableModel(bookings));
+            refreshData();
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError(ex.getMessage());
+            table.setModel(new BookingTableModel(Collections.emptyList()));
         }
     }
 
     @Override
     protected void onAdd() {
-        new BookingFormDialog(null, controller, this::initTableModel);
+        new BookingFormDialog(null, controller, this::safeRefresh);
     }
 
     @Override
     protected void onEdit() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            int id = (int) table.getModel().getValueAt(row, 0);
             try {
+                int id = (int) table.getModel().getValueAt(row, 0);
                 Booking booking = controller.getBookingById(id);
-                new BookingFormDialog(booking, controller, this::initTableModel);
+                new BookingFormDialog(booking, controller, this::safeRefresh);
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showError("Database error: " + ex.getMessage());
             }
         }
     }
@@ -50,21 +51,49 @@ public class BookingPanel extends TablePanel {
         int row = table.getSelectedRow();
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
-            try {
-                controller.deleteBooking(id);
-                initTableModel();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Delete this booking and all related payments?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    controller.deleteBooking(id);
+                    safeRefresh();
+                } catch (SQLException ex) {
+                    showError("Delete failed: " + ex.getMessage());
+                }
             }
         }
     }
 
+    private void refreshData() throws SQLException {
+        List<Booking> bookings = controller.getAllBookings();
+        table.setModel(new BookingTableModel(bookings));
+        table.repaint();
+    }
+
+    private void safeRefresh() {
+        try {
+            refreshData();
+        } catch (SQLException ex) {
+            showError("Failed to refresh: " + ex.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     private static class BookingTableModel extends AbstractTableModel {
         private final List<Booking> bookings;
-        private final String[] columns = {"ID", "Client ID", "Check-In", "Check-Out", "Status"};
+        private final String[] columns = {"ID", "Client ID", "Employee ID", "Check-In", "Check-Out", "Cost", "Status"};
 
         public BookingTableModel(List<Booking> bookings) {
-            this.bookings = bookings;
+            this.bookings = bookings != null ? bookings : Collections.emptyList();
         }
 
         @Override public int getRowCount() { return bookings.size(); }
@@ -77,9 +106,11 @@ public class BookingPanel extends TablePanel {
             return switch (col) {
                 case 0 -> booking.getId();
                 case 1 -> booking.getClientId();
-                case 2 -> booking.getCheckInDate().toString();
-                case 3 -> booking.getCheckOutDate().toString();
-                case 4 -> booking.getStatus();
+                case 2 -> booking.getEmployeeId();
+                case 3 -> booking.getCheckInDate().toString();
+                case 4 -> booking.getCheckOutDate().toString();
+                case 5 -> "$" + booking.getTotalCost();
+                case 6 -> booking.getStatus();
                 default -> null;
             };
         }
