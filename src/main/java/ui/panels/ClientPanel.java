@@ -23,25 +23,27 @@ public class ClientPanel extends TablePanel {
             List<Client> clients = controller.getAllClients();
             table.setModel(new ClientTableModel(clients));
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError("Database error: " + ex.getMessage());
         }
     }
 
     @Override
     protected void onAdd() {
-        new ClientFormDialog(null, controller, this::initTableModel);
+        new ClientFormDialog(null, controller, this::refreshData);
     }
 
     @Override
     protected void onEdit() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            int id = (int) table.getModel().getValueAt(row, 0);
             try {
+                int id = (int) table.getModel().getValueAt(row, 0);
                 Client client = controller.getClientById(id);
-                new ClientFormDialog(client, controller, this::initTableModel);
+                if (client != null) {
+                    new ClientFormDialog(client, controller, this::refreshData);
+                }
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showError("Error loading client: " + ex.getMessage());
             }
         }
     }
@@ -51,13 +53,29 @@ public class ClientPanel extends TablePanel {
         int row = table.getSelectedRow();
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
-            try {
-                controller.deleteClient(id);
-                initTableModel();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Delete client and all related data?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    controller.deleteClient(id);
+                    refreshData();
+                } catch (SQLException ex) {
+                    showError("Error deleting client: " + ex.getMessage());
+                }
             }
         }
+    }
+
+    private void refreshData() {
+        initTableModel();
+        table.repaint();
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private static class ClientTableModel extends AbstractTableModel {

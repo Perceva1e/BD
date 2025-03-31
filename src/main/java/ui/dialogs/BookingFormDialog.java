@@ -44,6 +44,7 @@ public class BookingFormDialog extends JDialog {
         add(btnSave, BorderLayout.SOUTH);
         pack();
         setLocationRelativeTo(null);
+        setVisible(true);
     }
 
     private void saveBooking(Booking booking, BookingController controller, Runnable onSuccess) {
