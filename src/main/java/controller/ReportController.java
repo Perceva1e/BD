@@ -1,5 +1,7 @@
 package controller;
 
+import dao.SavedQueryDAO;
+import model.SavedQuery;
 import service.ReportService;
 
 import java.sql.SQLException;
@@ -10,6 +12,7 @@ public class ReportController {
     private final ReportService reportService;
     private final Scanner scanner;
     private final InputValidator inputValidator;
+    private final SavedQueryDAO queryDAO = new SavedQueryDAO();
 
     public ReportController() {
         this.reportService = new ReportService();
@@ -122,5 +125,33 @@ public class ReportController {
             case 24 -> reportService.getRoomsWithKitchenOrJacuzzi();
             default -> throw new IllegalArgumentException("Invalid report number");
         };
+    }
+    public List<SavedQuery> getSavedQueries() throws SQLException {
+        return queryDAO.findAll();
+    }
+
+    public void saveQuery(SavedQuery query) throws SQLException {
+        queryDAO.save(query);
+    }
+
+    public void deleteQuery(int queryId) throws SQLException {
+        queryDAO.delete(queryId);
+    }
+
+    public List<?> executeCustomQuery(String sql) throws SQLException {
+        System.out.println("Executing SQL: " + sql);
+        validateQuery(sql);
+        List<?> result = reportService.executeRawQuery(sql);
+        System.out.println("Retrieved " + result.size() + " rows");
+        return result;
+    }
+    private void validateQuery(String sql) throws SQLException {
+        String cleanSQL = sql.trim().toUpperCase();
+        if (!cleanSQL.startsWith("SELECT")) {
+            throw new SQLException("Only SELECT queries are allowed");
+        }
+        if (cleanSQL.contains(";")) {
+            throw new SQLException("Multiple queries not allowed");
+        }
     }
 }

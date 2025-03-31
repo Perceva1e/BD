@@ -43,6 +43,7 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\model\RoomType.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\UnusedServiceDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\ClientPanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\RoomTypePanel.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\dao\SavedQueryDAO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Payment.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\BackUpController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\PaymentBookingDTO.java
@@ -51,9 +52,11 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\model\Booking.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\RoomTypeDAO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\ManagerBookingDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\ReportService.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\ui\dialogs\QueryEditorDialog.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\ServiceService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\RoomWithTypeDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\EmployeeController.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\model\SavedQuery.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\ClientController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\RoomService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\BookingPanel.java

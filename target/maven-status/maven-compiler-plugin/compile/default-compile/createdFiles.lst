@@ -1,9 +1,11 @@
+ui\panels\ReportPanel$QueryListMouseAdapter.class
 ui\dialogs\ServiceFormDialog.class
 service\BookingService.class
 ui\panels\ClientPanel$ClientTableModel.class
 ui\panels\EmployeePanel.class
 util\DurationParser.class
 ui\panels\RoomPanel$RoomTableModel.class
+model\SavedQuery.class
 ui\panels\EmployeePanel$EmployeeTableModel.class
 ui\dialogs\PaymentFormDialog.class
 ui\dialogs\ClientFormDialog.class
@@ -15,6 +17,7 @@ service\PaymentService.class
 ui\dialogs\RoomFormDialog.class
 service\EmployeeService.class
 ui\panels\PaymentPanel.class
+ui\dialogs\QueryEditorDialog.class
 ui\dialogs\BookingFormDialog.class
 dto\ManagerBookingDTO.class
 controller\ServiceController.class
@@ -48,10 +51,12 @@ service\ClientService.class
 service\ReportService.class
 dto\PaymentBookingDTO.class
 dto\BookingClientDTO.class
+ui\dialogs\QueryEditorDialog$1.class
 dao\RoomTypeDAO.class
 controller\ClientController.class
 ui\panels\ReportPanel.class
 service\BackUpService.class
+dao\SavedQueryDAO.class
 dto\ServiceCostDTO.class
 ui\components\TablePanel.class
 controller\BackUpController.class

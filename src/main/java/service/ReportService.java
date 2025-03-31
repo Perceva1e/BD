@@ -3,8 +3,11 @@ package service;
 import dao.*;
 import dto.*;
 import model.*;
-import java.sql.SQLException;
+import util.DatabaseConnection;
+
+import java.sql.*;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReportService {
@@ -115,5 +118,23 @@ public class ReportService {
     public List<Room> getRoomsWithKitchenOrJacuzzi() throws SQLException {
         return roomDAO.getRoomsWithKitchenOrJacuzzi();
     }
+    public List<Object[]> executeRawQuery(String sql) throws SQLException {
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
+            List<Object[]> results = new ArrayList<>();
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (rs.next()) {
+                Object[] row = new Object[columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    row[i] = rs.getObject(i + 1);
+                }
+                results.add(row);
+            }
+            return results;
+        }
+    }
 }
