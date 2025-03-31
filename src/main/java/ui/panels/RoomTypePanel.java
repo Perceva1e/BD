@@ -22,25 +22,25 @@ public class RoomTypePanel extends TablePanel {
             List<RoomType> types = controller.getAllRoomTypes();
             table.setModel(new RoomTypeTableModel(types));
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            showError(ex.getMessage());
         }
     }
 
     @Override
     protected void onAdd() {
-        new RoomTypeFormDialog(null, controller, this::initTableModel);
+        new RoomTypeFormDialog(null, controller, this::refreshData);
     }
 
     @Override
     protected void onEdit() {
         int row = table.getSelectedRow();
         if (row >= 0) {
-            int id = (int) table.getModel().getValueAt(row, 0);
             try {
+                int id = (int) table.getModel().getValueAt(row, 0);
                 RoomType type = controller.getRoomTypeById(id);
-                new RoomTypeFormDialog(type, controller, this::initTableModel);
+                new RoomTypeFormDialog(type, controller, this::refreshData);
             } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                showError(ex.getMessage());
             }
         }
     }
@@ -50,13 +50,32 @@ public class RoomTypePanel extends TablePanel {
         int row = table.getSelectedRow();
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
-            try {
-                controller.deleteRoomType(id);
-                initTableModel();
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Delete this room type and ALL RELATED ROOMS?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    controller.deleteRoomType(id);
+                    refreshData();
+                } catch (SQLException ex) {
+                    showError("Delete error: " + ex.getMessage());
+                }
             }
         }
+    }
+
+    private void refreshData() {
+        initTableModel();
+        table.repaint();
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     private static class RoomTypeTableModel extends AbstractTableModel {

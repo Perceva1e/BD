@@ -4,69 +4,122 @@ import controller.RoomTypeController;
 import model.RoomType;
 import javax.swing.*;
 import java.awt.*;
-import java.util.Arrays;
+import java.util.regex.Pattern;
+import java.sql.SQLException;
 
 public class RoomTypeFormDialog extends JDialog {
+    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z\\s-]{3,}$");
+    private static final Pattern CATEGORY_PATTERN = Pattern.compile("^[A-Za-z]{4,}$");
+
     private final JTextField txtName = new JTextField(20);
-    private final JComboBox<String> cmbComfort = new JComboBox<>(
-            new String[]{"Low", "Medium", "High", "Very High"}
-    );
+    private final JComboBox<String> cmbComfort = new JComboBox<>(new String[]{"Low", "Medium", "High", "Very High"});
     private final JTextField txtCategory = new JTextField(15);
     private final JTextField txtCost = new JTextField(10);
+    private final RoomTypeController controller;
+    private final Runnable onSuccess;
+    private final RoomType editingType;
 
     public RoomTypeFormDialog(RoomType type, RoomTypeController controller, Runnable onSuccess) {
-        setTitle(type == null ? "New Room Type" : "Edit Room Type");
-        setLayout(new BorderLayout());
-        setModal(true);
+        this.editingType = type;
+        this.controller = controller;
+        this.onSuccess = onSuccess;
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 5, 5));
-        fieldsPanel.add(new JLabel("Name:"));
+        setTitle(editingType == null ? "New Room Type" : "Edit Room Type");
+        initUI();
+        setupWindow();
+    }
+
+    private void initUI() {
+        JPanel fieldsPanel = new JPanel(new GridLayout(4, 2, 10, 10));
+        fieldsPanel.add(new JLabel("Name (3+ letters, a-z only):"));
         fieldsPanel.add(txtName);
         fieldsPanel.add(new JLabel("Comfort Level:"));
         fieldsPanel.add(cmbComfort);
-        fieldsPanel.add(new JLabel("Category:"));
+        fieldsPanel.add(new JLabel("Category (4+ letters):"));
         fieldsPanel.add(txtCategory);
-        fieldsPanel.add(new JLabel("Cost/Night:"));
+        fieldsPanel.add(new JLabel("Cost/Night (> 0 $):"));
         fieldsPanel.add(txtCost);
 
-        if (type != null) {
-            txtName.setText(type.getName());
-            cmbComfort.setSelectedItem(type.getComfortLevel());
-            txtCategory.setText(type.getCategory());
-            txtCost.setText(String.valueOf(type.getCostPerNight()));
+        if (editingType != null) {
+            txtName.setText(editingType.getName());
+            cmbComfort.setSelectedItem(editingType.getComfortLevel());
+            txtCategory.setText(editingType.getCategory());
+            txtCost.setText(String.valueOf(editingType.getCostPerNight()));
         }
 
         JButton btnSave = new JButton("Save");
-        btnSave.addActionListener(e -> saveType(type, controller, onSuccess));
+        btnSave.addActionListener(e -> saveType());
 
         add(fieldsPanel, BorderLayout.CENTER);
         add(btnSave, BorderLayout.SOUTH);
-        pack();
-        setLocationRelativeTo(null);
     }
 
-    private void saveType(RoomType type, RoomTypeController controller, Runnable onSuccess) {
+    private void setupWindow() {
+        pack();
+        setLocationRelativeTo(null);
+        setModal(true);
+        setResizable(false);
+        setVisible(true);
+    }
+
+    private void saveType() {
         try {
-            RoomType newType = new RoomType();
-            if (type != null) newType.setId(type.getId());
+            StringBuilder errors = new StringBuilder();
 
-            newType.setName(txtName.getText().trim());
-            newType.setComfortLevel((String) cmbComfort.getSelectedItem());
-            newType.setCategory(txtCategory.getText().trim());
-            newType.setCostPerNight(Integer.parseInt(txtCost.getText()));
+            String name = txtName.getText().trim();
+            String category = txtCategory.getText().trim();
+            String costStr = txtCost.getText().trim();
 
-            if (type == null) {
-                controller.addRoomType(newType);
+            if (!NAME_PATTERN.matcher(name).matches()) {
+                errors.append("• Invalid name format!\n");
+            }
+
+            if (!CATEGORY_PATTERN.matcher(category).matches()) {
+                errors.append("• Invalid category format!\n");
+            }
+
+            int cost = 0;
+            try {
+                cost = Integer.parseInt(costStr);
+                if (cost <= 0) errors.append("• Cost must be positive!\n");
+            } catch (NumberFormatException e) {
+                errors.append("• Invalid cost format!\n");
+            }
+
+            if (errors.length() > 0) {
+                showErrorDialog(errors.toString());
+                return;
+            }
+
+            RoomType type = new RoomType();
+            if (editingType != null) type.setId(editingType.getId());
+
+            type.setName(name);
+            type.setComfortLevel((String) cmbComfort.getSelectedItem());
+            type.setCategory(category);
+            type.setCostPerNight(cost);
+
+            if (editingType == null) {
+                controller.addRoomType(type);
             } else {
-                controller.updateRoomType(newType);
+                controller.updateRoomType(type);
             }
 
             onSuccess.run();
             dispose();
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Invalid cost format!", "Error", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            showErrorDialog("Database error: " + ex.getMessage());
+        } catch (Exception ex) {
+            showErrorDialog(ex.getMessage());
         }
+    }
+
+    private void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Validation Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }
