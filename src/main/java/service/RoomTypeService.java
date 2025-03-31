@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dao.RoomTypeDAO;
 import dao.RoomDAO;
@@ -66,14 +66,16 @@ public class RoomTypeService {
     }
 
 
-    public void listRoomTypes() {
+    public List<RoomType> listRoomTypes() {
+        List<RoomType> roomType = null;
         try {
-            List<RoomType> roomType = roomTypeDAO.getAllRoomTypes();
+            roomType = roomTypeDAO.getAllRoomTypes();
             if (roomType.isEmpty()) System.out.println("\nNo roomType!");
             else roomType.forEach(System.out::println);
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+        return roomType;
     }
 
     public void updateRoomType(Scanner scanner) {
@@ -163,5 +165,24 @@ public class RoomTypeService {
         } catch (Exception e) {
             System.err.println("Error deleting room type: " + e.getMessage());
         }
+    }
+    public List<RoomType> getAllRoomTypes() throws SQLException {
+        return roomTypeDAO.getAllRoomTypes();
+    }
+
+    public RoomType getRoomTypeById(int id) throws SQLException {
+        return roomTypeDAO.getRoomTypeById(id);
+    }
+
+    public void createRoomType(RoomType roomType) throws SQLException {
+        roomTypeDAO.addRoomType(roomType);
+    }
+
+    public void updateRoomTypeEntity(RoomType roomType) throws SQLException {
+        roomTypeDAO.updateRoomType(roomType);
+    }
+
+    public void deleteRoomTypeEntity(int id) throws SQLException {
+        roomTypeDAO.deleteRoomType(id);
     }
 }

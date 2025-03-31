@@ -1,6 +1,11 @@
-package controllers;
+package controller;
 
-import services.RoomService;
+import dao.RoomDAO;
+import model.Room;
+import service.RoomService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 public class RoomController {
@@ -36,5 +41,25 @@ public class RoomController {
                 default -> System.out.println("Invalid choice!");
             }
         }
+    }
+    private final RoomDAO roomDAO = new RoomDAO();
+    public List<Room> getAllRooms() throws SQLException {
+        return roomDAO.getAllRooms();
+    }
+
+    public Room getRoomById(int id) throws SQLException {
+        return roomDAO.getRoomById(id);
+    }
+
+    public void addRoom(Room room) throws SQLException {
+        roomDAO.addRoom(room);
+    }
+
+    public void updateRoom(Room room) throws SQLException {
+        roomDAO.updateRoom(room);
+    }
+
+    public void deleteRoom(int id) throws SQLException {
+        roomDAO.deleteRoom(id);
     }
 }

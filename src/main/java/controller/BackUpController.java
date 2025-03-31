@@ -1,6 +1,6 @@
-package controllers;
+package controller;
 
-import services.BackUpService;
+import service.BackUpService;
 import java.util.Scanner;
 import validation.InputValidator;
 
@@ -33,5 +33,12 @@ public class BackUpController {
             }
             default -> System.out.println("Invalid choice!");
         }
+    }
+    public void createBackup(String path) {
+        backUpService.createBackup(path);
+    }
+
+    public void restoreBackup(String path) {
+        backUpService.restoreBackup(path);
     }
 }

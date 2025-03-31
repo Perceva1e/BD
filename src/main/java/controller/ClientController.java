@@ -1,6 +1,11 @@
-package controllers;
+package controller;
 
-import services.ClientService;
+import dao.ClientDAO;
+import model.Client;
+import service.ClientService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 
@@ -8,6 +13,7 @@ public class ClientController {
     private final ClientService clientService;
     private final Scanner scanner;
     private final InputValidator inputValidator;
+    private final ClientDAO clientDAO = new ClientDAO();
 
     public ClientController() {
         this.clientService = new ClientService();
@@ -37,5 +43,24 @@ public class ClientController {
                 default -> System.out.println("Invalid choice!");
             }
         }
+    }
+    public List<Client> getAllClients() throws SQLException {
+        return clientDAO.getAllClientsSorted();
+    }
+
+    public Client getClientById(int id) throws SQLException {
+        return clientDAO.getClientById(id);
+    }
+
+    public void addClient(Client client) throws SQLException {
+        clientDAO.addClient(client);
+    }
+
+    public void updateClient(Client client) throws SQLException {
+        clientDAO.updateClient(client);
+    }
+
+    public void deleteClient(int id) throws SQLException {
+        clientDAO.deleteClient(id);
     }
 }

@@ -1,6 +1,11 @@
-package controllers;
+package controller;
 
-import services.BookingService;
+import dao.BookingDAO;
+import model.Booking;
+import service.BookingService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 public class BookingController {
@@ -36,5 +41,26 @@ public class BookingController {
                 default -> System.out.println("Invalid choice!");
             }
         }
+    }
+    private final BookingDAO bookingDAO = new BookingDAO();
+
+    public List<Booking> getAllBookings() throws SQLException {
+        return bookingDAO.getAllBookings();
+    }
+
+    public Booking getBookingById(int id) throws SQLException {
+        return bookingDAO.getBookingById(id);
+    }
+
+    public void addBooking(Booking booking) throws SQLException {
+        bookingDAO.addBooking(booking);
+    }
+
+    public void updateBooking(Booking booking) throws SQLException {
+        bookingDAO.updateBooking(booking);
+    }
+
+    public void deleteBooking(int id) throws SQLException {
+        bookingDAO.deleteBooking(id);
     }
 }

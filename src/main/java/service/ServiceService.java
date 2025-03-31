@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dao.ServiceDAO;
 import model.Service;
@@ -192,5 +192,24 @@ public class ServiceService {
         } catch (Exception e) {
             System.err.println("Error deleting service: " + e.getMessage());
         }
+    }
+    public List<Service> getAllServices() throws SQLException {
+        return serviceDAO.getAllServices();
+    }
+
+    public Service getServiceById(int id) throws SQLException {
+        return serviceDAO.getServiceById(id);
+    }
+
+    public void createService(Service service) throws SQLException {
+        serviceDAO.addService(service);
+    }
+
+    public void updateServiceEntity(Service service) throws SQLException {
+        serviceDAO.updateService(service);
+    }
+
+    public void deleteServiceEntity(int id) throws SQLException {
+        serviceDAO.deleteService(id);
     }
 }

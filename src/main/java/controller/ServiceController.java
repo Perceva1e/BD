@@ -1,6 +1,10 @@
-package controllers;
+package controller;
 
-import services.ServiceService;
+import model.Service;
+import service.ServiceService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 
@@ -36,5 +40,24 @@ public class ServiceController {
                 default -> System.out.println("Invalid choice!");
             }
         }
+    }
+    public List<Service> getAllServices() throws SQLException {
+        return serviceService.getAllServices();
+    }
+
+    public Service getServiceById(int id) throws SQLException {
+        return serviceService.getServiceById(id);
+    }
+
+    public void addService(Service service) throws SQLException {
+        serviceService.createService(service);
+    }
+
+    public void updateService(Service service) throws SQLException {
+        serviceService.updateServiceEntity(service);
+    }
+
+    public void deleteService(int id) throws SQLException {
+        serviceService.deleteServiceEntity(id);
     }
 }

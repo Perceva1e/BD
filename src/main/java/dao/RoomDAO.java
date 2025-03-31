@@ -1,4 +1,3 @@
-// RoomDAO.java
 package dao;
 
 import model.Room;

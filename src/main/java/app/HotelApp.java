@@ -1,10 +1,17 @@
 package app;
 
-import controllers.*;
+import controller.*;
+import ui.panels.*;
+import ui.themes.ThemeManager;
 import util.DatabaseConnection;
+
 import java.sql.SQLException;
 import java.util.Scanner;
+
 import validation.InputValidator;
+
+import javax.swing.*;
+
 public class HotelApp {
     private final Scanner scanner;
     private final ClientController clientController;
@@ -17,6 +24,7 @@ public class HotelApp {
     private final BackUpController backUpController;
     private final ReportController reportController;
     private final InputValidator inputValidator;
+
     public HotelApp() {
         this.scanner = new Scanner(System.in);
         this.clientController = new ClientController();
@@ -32,21 +40,49 @@ public class HotelApp {
     }
 
     public static void main(String[] args) {
-        try {
-            HotelApp app = new HotelApp();
-            app.run();
-        } catch (Exception e) {
-            System.err.println("Application error: " + e.getMessage());
-        } finally {
+        ThemeManager.configure();
+
+        if (args.length > 0 && args[0].equals("--gui")) {
+            SwingUtilities.invokeLater(() -> {
+                JFrame frame = new JFrame("Hotel Management System");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(1280, 720);
+
+                JTabbedPane tabbedPane = new JTabbedPane();
+
+                tabbedPane.addTab("🏨 Clients", new ClientPanel());
+                tabbedPane.addTab("📅 Bookings", new BookingPanel());
+                tabbedPane.addTab("👥 Employees", new EmployeePanel());
+                tabbedPane.addTab("🛏️ Rooms", new RoomPanel());
+                tabbedPane.addTab("⭐ Room Types", new RoomTypePanel());
+                tabbedPane.addTab("🛎️ Services", new ServicePanel());
+                tabbedPane.addTab("💳 Payments", new PaymentPanel());
+
+                tabbedPane.addTab("📦 Backup", new BackupPanel());
+                //tabbedPane.addTab("📊 Reports", new ReportPanel());
+
+                frame.add(tabbedPane);
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
+            });
+        } else {
             try {
-                DatabaseConnection.closeConnection();
-            } catch (SQLException e) {
-                System.err.println("Error closing connection: " + e.getMessage());
+                HotelApp app = new HotelApp();
+                app.runConsole();
+            } catch (Exception e) {
+                System.err.println("Application error: " + e.getMessage());
+            } finally {
+                try {
+                    DatabaseConnection.closeConnection();
+                } catch (SQLException e) {
+                    System.err.println("Error closing connection: " + e.getMessage());
+                }
             }
         }
     }
 
-    private void run() {
+
+    private void runConsole() {
         boolean running = true;
         while (running) {
             printMainMenu();

@@ -1,6 +1,10 @@
-package controllers;
+package controller;
 
-import services.PaymentService;
+import model.Payment;
+import service.PaymentService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 
@@ -38,4 +42,24 @@ public class PaymentController {
             }
         }
     }
+    public void addPayment(Payment payment) throws SQLException {
+        paymentService.createPayment(payment);
+    }
+
+    public void updatePayment(Payment payment) throws SQLException {
+        paymentService.updatePaymentEntity(payment);
+    }
+
+    public List<Payment> getAllPayments() throws SQLException {
+        return paymentService.getAllPayments();
+    }
+
+    public Payment getPaymentById(int id) throws SQLException {
+        return paymentService.getPaymentById(id);
+    }
+
+    public void deletePayment(int id) throws SQLException {
+        paymentService.deletePaymentEntity(id);
+    }
+
 }

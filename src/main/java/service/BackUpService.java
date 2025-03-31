@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dao.BookingDAO;
 import dao.ClientDAO;
@@ -13,13 +13,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 public class BackUpService {
 
-    public void createBackup(Scanner scanner) {
-        System.out.print("Enter backup file path: ");
-        String path = scanner.nextLine().trim();
-
+    private void executeBackupCommand(String path) {
         try {
             String pgDumpPath = "C:\\Program Files\\PostgreSQL\\17\\bin\\pg_dump.exe";
-
             ProcessBuilder pb = new ProcessBuilder(
                     pgDumpPath,
                     "-U", "postgres",
@@ -27,29 +23,13 @@ public class BackUpService {
                     "-f", path
             );
             pb.environment().put("PGPASSWORD", "Den/25362004");
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Backup created successfully!");
-            } else {
-                System.err.println("Backup failed with code: " + exitCode);
-            }
+            executeCommand(pb, "Backup");
         } catch (Exception e) {
-            System.err.println("Backup error: " + e.getMessage());
+            handleError("Backup", e);
         }
     }
-    public void restoreBackup(Scanner scanner) {
-        System.out.print("Enter backup file path: ");
-        String path = scanner.nextLine();
 
+    private void executeRestoreCommand(String path) {
         try {
             String psqlPath = "C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe";
             ProcessBuilder pb = new ProcessBuilder(
@@ -59,23 +39,54 @@ public class BackUpService {
                     "-f", path
             );
             pb.environment().put("PGPASSWORD", "Den/25362004");
-            pb.redirectErrorStream(true);
-            Process process = pb.start();
-
-            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String line;
-            while ((line = errorReader.readLine()) != null) {
-                System.err.println(line);
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Backup restored successfully!");
-            } else {
-                System.err.println("Restore failed with code: " + exitCode);
-            }
+            executeCommand(pb, "Restore");
         } catch (Exception e) {
-            System.err.println("Restore error: " + e.getMessage());
+            handleError("Restore", e);
         }
+    }
+
+    private void executeCommand(ProcessBuilder pb, String operation) throws Exception {
+        pb.redirectErrorStream(true);
+        Process process = pb.start();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream()))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        }
+
+        int exitCode = process.waitFor();
+        if (exitCode == 0) {
+            System.out.println(operation + " completed successfully!");
+        } else {
+            System.err.println(operation + " failed with code: " + exitCode);
+        }
+    }
+
+    private void handleError(String operation, Exception e) {
+        System.err.println(operation + " error: " + e.getMessage());
+        if (e.getCause() != null) {
+            e.getCause().printStackTrace();
+        }
+    }
+    public void createBackup(String path) {
+        executeBackupCommand(path);
+    }
+
+    public void restoreBackup(String path) {
+        executeRestoreCommand(path);
+    }
+    public void createBackup(Scanner scanner) {
+        System.out.print("Enter backup file path: ");
+        String path = scanner.nextLine();
+        executeBackupCommand(path);
+    }
+    public void restoreBackup(Scanner scanner) {
+        System.out.print("Enter backup file path: ");
+        String path = scanner.nextLine();
+        executeRestoreCommand(path);
     }
 }

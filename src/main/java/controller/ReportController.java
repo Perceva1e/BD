@@ -1,6 +1,6 @@
-package controllers;
+package controller;
 
-import services.ReportService;
+import service.ReportService;
 import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
@@ -91,4 +91,5 @@ public class ReportController {
             items.forEach(System.out::println);
         }
     }
+
 }

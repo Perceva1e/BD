@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dao.RoomDAO;
 import model.Room;

@@ -1,14 +1,17 @@
-package controllers;
+package controller;
 
-import services.RoomTypeService;
+import model.RoomType;
+import service.RoomTypeService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 
 public class RoomTypeController {
-    private final RoomTypeService roomTypeService;
     private final Scanner scanner;
     private final InputValidator inputValidator;
-
+    private RoomTypeService roomTypeService = new RoomTypeService();
     public RoomTypeController() {
         this.roomTypeService = new RoomTypeService();
         this.scanner = new Scanner(System.in);
@@ -37,5 +40,25 @@ public class RoomTypeController {
                 default -> System.out.println("Invalid choice!");
             }
         }
+    }
+
+    public List<RoomType> getAllRoomTypes() throws SQLException {
+        return roomTypeService.getAllRoomTypes();
+    }
+
+    public RoomType getRoomTypeById(int id) throws SQLException {
+        return roomTypeService.getRoomTypeById(id);
+    }
+
+    public void addRoomType(RoomType roomType) throws SQLException {
+        roomTypeService.createRoomType(roomType);
+    }
+
+    public void updateRoomType(RoomType roomType) throws SQLException {
+        roomTypeService.updateRoomTypeEntity(roomType);
+    }
+
+    public void deleteRoomType(int id) throws SQLException {
+        roomTypeService.deleteRoomTypeEntity(id);
     }
 }

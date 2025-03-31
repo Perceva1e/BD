@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dao.*;
 import dto.*;
@@ -115,4 +115,5 @@ public class ReportService {
     public List<Room> getRoomsWithKitchenOrJacuzzi() throws SQLException {
         return roomDAO.getRoomsWithKitchenOrJacuzzi();
     }
+
 }

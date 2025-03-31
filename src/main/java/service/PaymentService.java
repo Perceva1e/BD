@@ -1,4 +1,4 @@
-package services;
+package service;
 
 import dao.PaymentDAO;
 import dao.BookingDAO;
@@ -234,5 +234,23 @@ public class PaymentService {
             System.err.println("Error: " + e.getMessage());
         }
     }
+    public List<Payment> getAllPayments() throws SQLException {
+        return paymentDAO.getAllPayments();
+    }
 
+    public Payment getPaymentById(int id) throws SQLException {
+        return paymentDAO.getPaymentById(id);
+    }
+
+    public void createPayment(Payment payment) throws SQLException {
+        paymentDAO.addPayment(payment);
+    }
+
+    public void updatePaymentEntity(Payment payment) throws SQLException {
+        paymentDAO.updatePayment(payment);
+    }
+
+    public void deletePaymentEntity(int id) throws SQLException {
+        paymentDAO.deletePayment(id);
+    }
 }

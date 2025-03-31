@@ -1,10 +1,16 @@
-package controllers;
+package controller;
 
-import services.EmployeeService;
+import dao.EmployeeDAO;
+import model.Employee;
+import service.EmployeeService;
+
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
 public class EmployeeController {
     private final EmployeeService employeeService;
+    private final EmployeeDAO employeeDAO = new EmployeeDAO();
     private final Scanner scanner;
     private final InputValidator inputValidator;
     public EmployeeController() {
@@ -36,5 +42,23 @@ public class EmployeeController {
                 default -> System.out.println("Invalid choice!");
             }
         }
+    }
+    public List<Employee> getAllEmployees() throws SQLException {
+        return employeeDAO.getAllEmployees();
+    }
+
+    public Employee getEmployeeById(int id) throws SQLException {
+        return employeeDAO.getEmployeeById(id);
+    }
+
+    public void deleteEmployee(int id) throws SQLException {
+        employeeDAO.deleteEmployee(id);
+    }
+    public void addEmployee(Employee employee) throws SQLException {
+        employeeDAO.addEmployee(employee);
+    }
+
+    public void updateEmployee(Employee employee) throws SQLException {
+        employeeDAO.updateEmployee(employee);
     }
 }
