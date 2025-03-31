@@ -37,6 +37,7 @@ model\Client.class
 service\RoomService.class
 dto\PaymentTypeCountDTO.class
 dto\RoomTypeCostDTO.class
+ui\panels\ReportPanel$ReportTableModel.class
 controller\PaymentController.class
 controller\RoomController.class
 dto\ClientSpendingDTO.class
@@ -49,6 +50,7 @@ dto\PaymentBookingDTO.class
 dto\BookingClientDTO.class
 dao\RoomTypeDAO.class
 controller\ClientController.class
+ui\panels\ReportPanel.class
 service\BackUpService.class
 dto\ServiceCostDTO.class
 ui\components\TablePanel.class
@@ -56,6 +58,7 @@ controller\BackUpController.class
 controller\ReportController.class
 ui\panels\ServicePanel.class
 util\DatabaseConnection.class
+util\ExcelExporter.class
 model\Room.class
 dto\PaymentStatsDTO.class
 dto\RoomWithTypeDTO.class

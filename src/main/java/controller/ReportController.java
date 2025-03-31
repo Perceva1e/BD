@@ -1,6 +1,8 @@
 package controller;
 
 import service.ReportService;
+
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
@@ -92,4 +94,33 @@ public class ReportController {
         }
     }
 
+    public List<?> getReportData(int reportNumber) throws SQLException {
+        return switch (reportNumber) {
+            case 1 -> reportService.getHighPaidEmployees();
+            case 2 -> reportService.getAllClientsSorted();
+            case 3 -> reportService.getActiveBookings();
+            case 4 -> reportService.getBookingsWithClients();
+            case 5 -> reportService.getRecentPayments();
+            case 6 -> reportService.getCreditCardPayments();
+            case 7 -> reportService.getExpensiveRoomTypes();
+            case 8 -> reportService.getLargeCapacityRooms();
+            case 9 -> reportService.getRoomsWithTypes();
+            case 10 -> reportService.getLongServices();
+            case 11 -> reportService.printUnusedServices();
+            case 12 -> reportService.printManagerBookings();
+            case 13 -> reportService.printServiceUsage();
+            case 14 -> reportService.getHighAveragePaidEmployees();
+            case 15 -> reportService.getClientsWithLuxuryBookings();
+            case 16 -> reportService.getRoomTypeCostStats();
+            case 17 -> reportService.getPaymentStats();
+            case 18 -> reportService.getRoomsAboveAverageArea();
+            case 19 -> reportService.getRoomsWithAmenities();
+            case 20 -> reportService.getServiceCostByCategory();
+            case 21 -> reportService.getAboveAverageBookings();
+            case 22 -> reportService.getClientSpendingAboveAverage();
+            case 23 -> reportService.getPaymentTypeCounts();
+            case 24 -> reportService.getRoomsWithKitchenOrJacuzzi();
+            default -> throw new IllegalArgumentException("Invalid report number");
+        };
+    }
 }

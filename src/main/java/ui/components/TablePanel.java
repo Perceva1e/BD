@@ -13,17 +13,14 @@ public abstract class TablePanel extends JPanel {
     public TablePanel(String title) {
         setLayout(new BorderLayout());
 
-        // Header
         JLabel lblTitle = new JLabel(title, SwingConstants.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
-        // Table
         table = new JTable();
         table.setAutoCreateRowSorter(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        // Toolbar
         JPanel toolPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnAdd = createToolButton("Add", e -> onAdd());
         btnEdit = createToolButton("Edit", e -> onEdit());

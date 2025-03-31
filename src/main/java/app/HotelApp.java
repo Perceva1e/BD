@@ -59,7 +59,7 @@ public class HotelApp {
                 tabbedPane.addTab("💳 Payments", new PaymentPanel());
 
                 tabbedPane.addTab("📦 Backup", new BackupPanel());
-                //tabbedPane.addTab("📊 Reports", new ReportPanel());
+                tabbedPane.addTab("📊 Reports", new ReportPanel());
 
                 frame.add(tabbedPane);
                 frame.setLocationRelativeTo(null);
