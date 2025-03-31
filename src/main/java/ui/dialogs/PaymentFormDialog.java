@@ -4,9 +4,14 @@ import controller.PaymentController;
 import model.Payment;
 import javax.swing.*;
 import java.awt.*;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.regex.Pattern;
 
 public class PaymentFormDialog extends JDialog {
+    private static final Pattern ID_PATTERN = Pattern.compile("^\\d+$");
+
     private final JComboBox<String> cmbType = new JComboBox<>(
             new String[]{"Credit Card", "Debit Card", "Cash", "Bank Transfer"}
     );
@@ -19,61 +24,126 @@ public class PaymentFormDialog extends JDialog {
     );
     private final JTextField txtBookingId = new JTextField(10);
 
+    private final PaymentController controller;
+    private final Runnable onSuccess;
+    private final Payment editingPayment;
+
     public PaymentFormDialog(Payment payment, PaymentController controller, Runnable onSuccess) {
-        setTitle(payment == null ? "New Payment" : "Edit Payment");
-        setLayout(new BorderLayout());
-        setModal(true);
+        this.editingPayment = payment;
+        this.controller = controller;
+        this.onSuccess = onSuccess;
 
-        JPanel fieldsPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-        fieldsPanel.add(new JLabel("Type:"));
-        fieldsPanel.add(cmbType);
-        fieldsPanel.add(new JLabel("Date (YYYY-MM-DD):"));
-        fieldsPanel.add(txtDate);
-        fieldsPanel.add(new JLabel("Method:"));
-        fieldsPanel.add(cmbMethod);
-        fieldsPanel.add(new JLabel("Status:"));
-        fieldsPanel.add(cmbStatus);
-        fieldsPanel.add(new JLabel("Booking ID:"));
-        fieldsPanel.add(txtBookingId);
+        setTitle(editingPayment == null ? "New Payment" : "Edit Payment");
+        initializeUI();
+        setupWindow();
+    }
 
-        if (payment != null) {
-            cmbType.setSelectedItem(payment.getPaymentType());
-            txtDate.setText(payment.getPaymentDate().toString());
-            cmbMethod.setSelectedItem(payment.getPaymentMethod());
-            cmbStatus.setSelectedItem(payment.getStatus());
-            txtBookingId.setText(String.valueOf(payment.getBookingId()));
-        }
+    private void initializeUI() {
+        JPanel fieldsPanel = new JPanel(new GridLayout(6, 2, 10, 10));
+        addFormFields(fieldsPanel);
+        populateFields();
 
         JButton btnSave = new JButton("Save");
-        btnSave.addActionListener(e -> savePayment(payment, controller, onSuccess));
+        btnSave.addActionListener(e -> savePayment());
 
         add(fieldsPanel, BorderLayout.CENTER);
         add(btnSave, BorderLayout.SOUTH);
-        pack();
-        setLocationRelativeTo(null);
     }
 
-    private void savePayment(Payment payment, PaymentController controller, Runnable onSuccess) {
+    private void addFormFields(JPanel panel) {
+        panel.add(new JLabel("Type*:"));
+        panel.add(cmbType);
+        panel.add(new JLabel("Date* (YYYY-MM-DD):"));
+        panel.add(txtDate);
+        panel.add(new JLabel("Method*:"));
+        panel.add(cmbMethod);
+        panel.add(new JLabel("Status*:"));
+        panel.add(cmbStatus);
+        panel.add(new JLabel("Booking ID*:"));
+        panel.add(txtBookingId);
+    }
+
+    private void populateFields() {
+        if (editingPayment != null) {
+            cmbType.setSelectedItem(editingPayment.getPaymentType());
+            txtDate.setText(editingPayment.getPaymentDate().toString());
+            cmbMethod.setSelectedItem(editingPayment.getPaymentMethod());
+            cmbStatus.setSelectedItem(editingPayment.getStatus());
+            txtBookingId.setText(String.valueOf(editingPayment.getBookingId()));
+        }
+    }
+
+    private void setupWindow() {
+        pack();
+        setLocationRelativeTo(null);
+        setModal(true);
+        setResizable(false);
+        setVisible(true);
+    }
+
+    private void savePayment() {
         try {
-            Payment newPayment = new Payment();
-            if (payment != null) newPayment.setId(payment.getId());
+            StringBuilder errors = new StringBuilder();
 
-            newPayment.setPaymentType((String) cmbType.getSelectedItem());
-            newPayment.setPaymentDate(LocalDate.parse(txtDate.getText()));
-            newPayment.setPaymentMethod((String) cmbMethod.getSelectedItem());
-            newPayment.setStatus((String) cmbStatus.getSelectedItem());
-            newPayment.setBookingId(Integer.parseInt(txtBookingId.getText()));
+            LocalDate paymentDate = null;
+            try {
+                paymentDate = LocalDate.parse(txtDate.getText().trim());
+                if (paymentDate.isBefore(LocalDate.now())) {
+                    errors.append("• Date cannot be in the past\n");
+                }
+            } catch (DateTimeParseException e) {
+                errors.append("• Invalid date format\n");
+            }
 
-            if (payment == null) {
-                controller.addPayment(newPayment);
+            int bookingId = 0;
+            if (!ID_PATTERN.matcher(txtBookingId.getText().trim()).matches()) {
+                errors.append("• Invalid Booking ID format\n");
             } else {
-                controller.updatePayment(newPayment);
+                try {
+                    bookingId = Integer.parseInt(txtBookingId.getText().trim());
+                    if (!controller.isValidBookingId(bookingId)) {
+                        errors.append("• Booking ID does not exist\n");
+                    }
+                } catch (SQLException ex) {
+                    errors.append("• Error verifying booking\n");
+                }
+            }
+
+            if (errors.length() > 0) {
+                showError("Validation errors:\n" + errors);
+                return;
+            }
+
+            Payment payment = new Payment();
+            if (editingPayment != null) payment.setId(editingPayment.getId());
+
+            payment.setPaymentType((String) cmbType.getSelectedItem());
+            payment.setPaymentDate(paymentDate);
+            payment.setPaymentMethod((String) cmbMethod.getSelectedItem());
+            payment.setStatus((String) cmbStatus.getSelectedItem());
+            payment.setBookingId(bookingId);
+
+            if (editingPayment == null) {
+                controller.addPayment(payment);
+            } else {
+                controller.updatePayment(payment);
             }
 
             onSuccess.run();
             dispose();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException ex) {
+            showError("Database error: " + ex.getMessage());
+        } catch (Exception ex) {
+            showError("Unexpected error: " + ex.getMessage());
         }
+    }
+
+    private void showError(String message) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }

@@ -61,5 +61,7 @@ public class PaymentController {
     public void deletePayment(int id) throws SQLException {
         paymentService.deletePaymentEntity(id);
     }
-
+    public boolean isValidBookingId(int bookingId) throws SQLException {
+        return paymentService.isValidBookingId(bookingId);
+    }
 }

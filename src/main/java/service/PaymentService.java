@@ -253,4 +253,7 @@ public class PaymentService {
     public void deletePaymentEntity(int id) throws SQLException {
         paymentDAO.deletePayment(id);
     }
+    public boolean isValidBookingId(int bookingId) throws SQLException {
+        return bookingDAO.getBookingById(bookingId) != null;
+    }
 }
