@@ -5,6 +5,7 @@ import ui.panels.*;
 import ui.themes.ThemeManager;
 import util.DatabaseConnection;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Scanner;
 
@@ -57,13 +58,31 @@ public class HotelApp {
                 tabbedPane.addTab("⭐ Room Types", new RoomTypePanel());
                 tabbedPane.addTab("🛎️ Services", new ServicePanel());
                 tabbedPane.addTab("💳 Payments", new PaymentPanel());
-
                 tabbedPane.addTab("📦 Backup", new BackupPanel());
                 tabbedPane.addTab("📊 Reports", new ReportPanel());
+
+                try {
+                    Connection connection = DatabaseConnection.getConnection();
+                    EntityController entityController = new EntityController(connection);
+                    tabbedPane.addTab("📋 Dynamic Entities", new EntityManagementPanel(entityController));
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(frame, "Ошибка загрузки панели управления сущностями: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+                }
 
                 frame.add(tabbedPane);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
+
+                frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                    @Override
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        try {
+                            DatabaseConnection.closeConnection();
+                        } catch (SQLException ex) {
+                            JOptionPane.showMessageDialog(frame, "Ошибка закрытия соединения: " + ex.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
             });
         } else {
             try {
@@ -80,7 +99,6 @@ public class HotelApp {
             }
         }
     }
-
 
     private void runConsole() {
         boolean running = true;

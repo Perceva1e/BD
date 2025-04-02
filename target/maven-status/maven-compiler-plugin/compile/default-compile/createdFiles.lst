@@ -8,7 +8,9 @@ ui\panels\RoomPanel$RoomTableModel.class
 model\SavedQuery.class
 ui\panels\EmployeePanel$EmployeeTableModel.class
 ui\dialogs\PaymentFormDialog.class
+app\HotelApp$1.class
 ui\dialogs\ClientFormDialog.class
+ui\dialogs\EntityFormDialog.class
 ui\panels\ClientPanel.class
 dao\BookingDAO.class
 ui\dialogs\RoomTypeFormDialog.class
@@ -21,11 +23,14 @@ ui\dialogs\QueryEditorDialog.class
 ui\dialogs\BookingFormDialog.class
 dto\ManagerBookingDTO.class
 controller\ServiceController.class
+ui\panels\EntityManagementPanel.class
 dto\ServiceUsageDTO.class
+ui\panels\DynamicEntityPanel$DynamicTableModel.class
 service\RoomTypeService.class
 ui\dialogs\EmployeeFormDialog.class
 model\Booking.class
 model\Payment.class
+model\DynamicEntity.class
 model\Service.class
 ui\panels\BookingPanel.class
 ui\panels\PaymentPanel$PaymentTableModel.class
@@ -38,9 +43,11 @@ ui\themes\ThemeManager.class
 ui\panels\ServicePanel$ServiceTableModel.class
 model\Client.class
 service\RoomService.class
+ui\panels\DynamicEntityPanel.class
 dto\PaymentTypeCountDTO.class
 dto\RoomTypeCostDTO.class
 ui\panels\ReportPanel$ReportTableModel.class
+controller\EntityController.class
 controller\PaymentController.class
 controller\RoomController.class
 dto\ClientSpendingDTO.class
@@ -48,6 +55,7 @@ service\ServiceService.class
 ui\panels\RoomTypePanel$RoomTypeTableModel.class
 ui\panels\RoomPanel.class
 service\ClientService.class
+ui\panels\EntityManagementPanel$1.class
 service\ReportService.class
 dto\PaymentBookingDTO.class
 dto\BookingClientDTO.class
@@ -72,6 +80,7 @@ dao\ClientDAO.class
 dao\PaymentDAO.class
 dao\RoomDAO.class
 dto\UnusedServiceDTO.class
+ui\dialogs\DynamicRecordFormDialog.class
 dao\ServiceDAO.class
 controller\EmployeeController.class
 dao\EmployeeDAO.class

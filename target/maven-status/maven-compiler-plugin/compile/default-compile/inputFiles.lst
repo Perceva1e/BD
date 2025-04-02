@@ -3,7 +3,9 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\EmployeePanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\BookingDAO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\ClientSpendingDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\themes\ThemeManager.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\EntityManagementPanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\ServiceCostDTO.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\DynamicEntityPanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\ReportPanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\BookingClientDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\util\ExcelExporter.java
@@ -23,15 +25,18 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\ui\components\TablePanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Employee.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\PaymentStatsDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\PaymentDAO.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\model\DynamicEntity.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\util\DurationParser.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\ClientService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dao\RoomDAO.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\controller\EntityController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\PaymentService.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\BookingController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\PaymentController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\RoomController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\util\DatabaseConnection.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\RoomTypeCostDTO.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\ui\dialogs\DynamicRecordFormDialog.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\validation\InputValidator.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\dialogs\EmployeeFormDialog.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\BackUpService.java
@@ -59,6 +64,7 @@ C:\Users\denis\IdeaProjects\BD\src\main\java\controller\EmployeeController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\SavedQuery.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\controller\ClientController.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\service\RoomService.java
+C:\Users\denis\IdeaProjects\BD\src\main\java\ui\dialogs\EntityFormDialog.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\ui\panels\BookingPanel.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\dto\PaymentTypeCountDTO.java
 C:\Users\denis\IdeaProjects\BD\src\main\java\model\Room.java
