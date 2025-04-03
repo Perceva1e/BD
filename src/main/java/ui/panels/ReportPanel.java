@@ -257,13 +257,13 @@ public class ReportPanel extends TablePanel {
     }
 
     @Override
-    protected void onAdd() {} // Не используется
+    protected void onAdd() {}
 
     @Override
-    protected void onEdit() {} // Не используется
+    protected void onEdit() {}
 
     @Override
-    protected void onDelete() {} // Не используется
+    protected void onDelete() {}
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);

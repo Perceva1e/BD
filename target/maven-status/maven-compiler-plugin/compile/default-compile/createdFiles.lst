@@ -8,7 +8,6 @@ ui\panels\RoomPanel$RoomTableModel.class
 model\SavedQuery.class
 ui\panels\EmployeePanel$EmployeeTableModel.class
 ui\dialogs\PaymentFormDialog.class
-app\HotelApp$1.class
 ui\dialogs\ClientFormDialog.class
 ui\dialogs\EntityFormDialog.class
 ui\panels\ClientPanel.class

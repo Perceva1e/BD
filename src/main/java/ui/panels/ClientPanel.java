@@ -12,8 +12,8 @@ import java.util.List;
 
 public class ClientPanel extends TablePanel {
     private final ClientController controller = new ClientController();
-    private final BookingPanel bookingPanel; // Ссылка на BookingPanel
-    private final PaymentPanel paymentPanel; // Ссылка на PaymentPanel
+    private final BookingPanel bookingPanel;
+    private final PaymentPanel paymentPanel;
 
     public ClientPanel(BookingPanel bookingPanel, PaymentPanel paymentPanel) {
         super("Clients Management");
@@ -64,7 +64,7 @@ public class ClientPanel extends TablePanel {
 
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    controller.deleteClientWithCascade(id); // Используем новый метод
+                    controller.deleteClientWithCascade(id);
                     refreshData();
                     // Обновляем связанные панели
                     if (bookingPanel != null) {

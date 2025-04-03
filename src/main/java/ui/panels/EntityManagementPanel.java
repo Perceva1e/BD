@@ -11,13 +11,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 public class EntityManagementPanel extends JPanel {
-    private final EntityController controller; // Принимаем через конструктор
+    private final EntityController controller;
     private JList<DynamicEntity> entityList;
     private DefaultListModel<DynamicEntity> entityListModel;
 
     public EntityManagementPanel(EntityController controller) throws SQLException {
         super(new BorderLayout(10, 10));
-        this.controller = controller; // Инициализируем через конструктор
+        this.controller = controller;
         initializeUI();
         loadEntities();
     }
@@ -58,7 +58,7 @@ public class EntityManagementPanel extends JPanel {
     private void loadEntities() {
         try {
             entityListModel.clear();
-            List<DynamicEntity> entities = controller.getEntities(); // Исправляем на getEntities()
+            List<DynamicEntity> entities = controller.getEntities();
             for (DynamicEntity entity : entities) {
                 entityListModel.addElement(entity);
             }

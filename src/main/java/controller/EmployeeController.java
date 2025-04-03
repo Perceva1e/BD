@@ -13,7 +13,7 @@ import validation.InputValidator;
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final EmployeeDAO employeeDAO = new EmployeeDAO();
-    private final BookingDAO bookingDAO = new BookingDAO(); // Добавляем BookingDAO
+    private final BookingDAO bookingDAO = new BookingDAO();
     private final Scanner scanner;
     private final InputValidator inputValidator;
 
@@ -68,26 +68,20 @@ public class EmployeeController {
         employeeDAO.deleteEmployee(id);
     }
 
-    // Проверяем, существует ли сотрудник
     public boolean employeeExists(int employeeId) throws SQLException {
         return employeeDAO.employeeExists(employeeId);
     }
 
-    // Находим первого сотрудника (для переназначения)
     public Integer findFirstEmployeeId() throws SQLException {
         return employeeDAO.findFirstEmployeeId();
     }
 
-    // Находим первого сотрудника, кроме указанного
     public Integer findFirstEmployeeId(int excludeId) throws SQLException {
         return employeeDAO.findFirstEmployeeId("WHERE id != ?", excludeId);
     }
 
-    // Удаление сотрудника с переназначением бронирований
     public void deleteEmployeeWithReassignment(int id, int replacementId) throws SQLException {
-        // Переназначаем бронирования
         bookingDAO.updateBookingsEmployee(id, replacementId);
-        // Удаляем сотрудника
         employeeDAO.deleteEmployee(id);
     }
 }

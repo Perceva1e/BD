@@ -13,14 +13,13 @@ import java.util.List;
 
 public class BookingPanel extends TablePanel implements Refreshable {
     private final BookingController controller = new BookingController();
-    private Refreshable paymentPanel; // Ссылка на PaymentPanel для обновления
+    private Refreshable paymentPanel;
 
     public BookingPanel() {
         super("Bookings Management");
         initTableModel();
     }
 
-    // Метод для установки ссылки на PaymentPanel
     public void setPaymentPanel(Refreshable paymentPanel) {
         this.paymentPanel = paymentPanel;
     }
@@ -72,7 +71,6 @@ public class BookingPanel extends TablePanel implements Refreshable {
                 try {
                     controller.deleteBooking(id);
                     safeRefresh();
-                    // Обновляем PaymentPanel, если он установлен
                     if (paymentPanel != null) {
                         paymentPanel.refreshData();
                     }

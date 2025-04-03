@@ -27,6 +27,6 @@ public class DynamicEntity {
 
     @Override
     public String toString() {
-        return name; // Возвращаем имя сущности
+        return name;
     }
 }

@@ -12,14 +12,13 @@ import java.util.List;
 
 public class RoomPanel extends TablePanel {
     private final RoomController controller = new RoomController();
-    private RoomTypePanel roomTypePanel; // Ссылка на RoomTypePanel
+    private RoomTypePanel roomTypePanel;
 
     public RoomPanel() {
         super("Rooms Management");
         initTableModel();
     }
 
-    // Метод для установки RoomTypePanel после создания
     public void setRoomTypePanel(RoomTypePanel roomTypePanel) {
         this.roomTypePanel = roomTypePanel;
     }
@@ -74,7 +73,7 @@ public class RoomPanel extends TablePanel {
                     controller.deleteRoom(id);
                     safeRefresh();
                     if (roomTypePanel != null) {
-                        roomTypePanel.refreshData(); // Обновляем RoomTypePanel
+                        roomTypePanel.refreshData();
                     }
                 } catch (SQLException ex) {
                     showError("Delete failed: " + ex.getMessage());
@@ -83,7 +82,7 @@ public class RoomPanel extends TablePanel {
         }
     }
 
-    public void refreshData() throws SQLException { // Делаем метод публичным
+    public void refreshData() throws SQLException {
         List<Room> rooms = controller.getAllRooms();
         table.setModel(new RoomTableModel(rooms));
         table.repaint();

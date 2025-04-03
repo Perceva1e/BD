@@ -16,18 +16,7 @@ public class DatabaseConnection {
     private static final String USER = "postgres";
     private static final String PASSWORD = "Den/25362004";
 
-    private static Connection connection;
-
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        }
-        return connection;
-    }
-
-    public static void closeConnection() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
-        }
+        return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 }

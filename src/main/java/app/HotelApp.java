@@ -3,10 +3,7 @@ package app;
 import controller.*;
 import ui.panels.*;
 import ui.themes.ThemeManager;
-import util.DatabaseConnection;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Scanner;
 
 import validation.InputValidator;
@@ -53,7 +50,7 @@ public class HotelApp {
 
                 BookingPanel bookingPanel = new BookingPanel();
                 PaymentPanel paymentPanel = new PaymentPanel();
-                ClientPanel clientPanel = new ClientPanel(bookingPanel, paymentPanel); // Передаем BookingPanel и PaymentPanel
+                ClientPanel clientPanel = new ClientPanel(bookingPanel, paymentPanel);
                 RoomPanel roomPanel = new RoomPanel();
                 RoomTypePanel roomTypePanel = new RoomTypePanel(roomPanel);
                 EmployeePanel employeePanel = new EmployeePanel(bookingPanel);
@@ -72,27 +69,15 @@ public class HotelApp {
                 tabbedPane.addTab("📊 Reports", new ReportPanel());
 
                 try {
-                    Connection connection = DatabaseConnection.getConnection();
-                    EntityController entityController = new EntityController(connection);
+                    EntityController entityController = new EntityController();
                     tabbedPane.addTab("📋 Dynamic Entities", new EntityManagementPanel(entityController));
-                } catch (SQLException e) {
+                } catch (Exception e) {
                     JOptionPane.showMessageDialog(frame, "Ошибка загрузки панели управления сущностями: " + e.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
                 }
 
                 frame.add(tabbedPane);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
-
-                frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        try {
-                            DatabaseConnection.closeConnection();
-                        } catch (SQLException ex) {
-                            JOptionPane.showMessageDialog(frame, "Ошибка закрытия соединения: " + ex.getMessage(), "Ошибка", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                });
             });
         } else {
             try {
@@ -100,12 +85,6 @@ public class HotelApp {
                 app.runConsole();
             } catch (Exception e) {
                 System.err.println("Application error: " + e.getMessage());
-            } finally {
-                try {
-                    DatabaseConnection.closeConnection();
-                } catch (SQLException e) {
-                    System.err.println("Error closing connection: " + e.getMessage());
-                }
             }
         }
     }

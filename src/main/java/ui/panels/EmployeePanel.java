@@ -13,7 +13,7 @@ import java.util.List;
 
 public class EmployeePanel extends TablePanel {
     private final EmployeeController controller = new EmployeeController();
-    private final BookingPanel bookingPanel; // Ссылка на BookingPanel
+    private final BookingPanel bookingPanel;
 
     public EmployeePanel(BookingPanel bookingPanel) {
         super("Employees Management");
@@ -56,13 +56,10 @@ public class EmployeePanel extends TablePanel {
             int id = (int) table.getModel().getValueAt(row, 0);
 
             try {
-                // Проверяем, существует ли сотрудник
                 if (!controller.employeeExists(id)) {
                     showError("Employee not found!");
                     return;
                 }
-
-                // Находим другого сотрудника для переназначения бронирований
                 Integer replacementId = controller.findFirstEmployeeId();
                 if (replacementId != null && replacementId == id) {
                     replacementId = controller.findFirstEmployeeId(id);
@@ -73,7 +70,6 @@ public class EmployeePanel extends TablePanel {
                     return;
                 }
 
-                // Подтверждение удаления
                 int confirm = JOptionPane.showConfirmDialog(
                         this,
                         "Delete this employee? All bookings will be reassigned to employee ID: " + replacementId,
@@ -82,11 +78,10 @@ public class EmployeePanel extends TablePanel {
                 );
 
                 if (confirm == JOptionPane.YES_OPTION) {
-                    // Переназначаем бронирования и удаляем сотрудника
                     controller.deleteEmployeeWithReassignment(id, replacementId);
                     safeRefresh();
                     if (bookingPanel != null) {
-                        bookingPanel.refreshData(); // Обновляем BookingPanel
+                        bookingPanel.refreshData();
                     }
                     JOptionPane.showMessageDialog(
                             this,

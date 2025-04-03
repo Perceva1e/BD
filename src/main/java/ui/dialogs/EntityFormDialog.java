@@ -47,7 +47,7 @@ public class EntityFormDialog extends JDialog {
         buttonPanel.add(cancelBtn);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        addFieldRow(); // Добавляем одно поле по умолчанию
+        addFieldRow();
     }
 
     private void addFieldRow() {
