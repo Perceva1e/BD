@@ -1,6 +1,7 @@
 package controller;
 
 import dao.BookingDAO;
+import dao.PaymentDAO; // Добавляем импорт для PaymentDAO
 import model.Booking;
 import service.BookingService;
 
@@ -8,10 +9,13 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
+
 public class BookingController {
     private final BookingService bookingService;
     private final Scanner scanner;
     private final InputValidator inputValidator;
+    private final BookingDAO bookingDAO = new BookingDAO();
+    private final PaymentDAO paymentDAO = new PaymentDAO();
     public BookingController() {
         this.bookingService = new BookingService();
         this.scanner = new Scanner(System.in);
@@ -42,7 +46,6 @@ public class BookingController {
             }
         }
     }
-    private final BookingDAO bookingDAO = new BookingDAO();
 
     public List<Booking> getAllBookings() throws SQLException {
         return bookingDAO.getAllBookings();
@@ -61,6 +64,7 @@ public class BookingController {
     }
 
     public void deleteBooking(int id) throws SQLException {
+        paymentDAO.deletePaymentsByBookingId(id);
         bookingDAO.deleteBooking(id);
     }
 }

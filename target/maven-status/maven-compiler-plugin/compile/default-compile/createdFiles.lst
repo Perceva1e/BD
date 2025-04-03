@@ -64,6 +64,7 @@ dao\RoomTypeDAO.class
 controller\ClientController.class
 ui\panels\ReportPanel.class
 service\BackUpService.class
+ui\panels\Refreshable.class
 dao\SavedQueryDAO.class
 dto\ServiceCostDTO.class
 ui\components\TablePanel.class

@@ -1,6 +1,8 @@
 package controller;
 
 import dao.ClientDAO;
+import dao.BookingDAO;
+import dao.PaymentDAO;
 import model.Client;
 import service.ClientService;
 
@@ -14,6 +16,8 @@ public class ClientController {
     private final Scanner scanner;
     private final InputValidator inputValidator;
     private final ClientDAO clientDAO = new ClientDAO();
+    private final BookingDAO bookingDAO = new BookingDAO(); // Добавляем BookingDAO
+    private final PaymentDAO paymentDAO = new PaymentDAO(); // Добавляем PaymentDAO
 
     public ClientController() {
         this.clientService = new ClientService();
@@ -44,6 +48,7 @@ public class ClientController {
             }
         }
     }
+
     public List<Client> getAllClients() throws SQLException {
         return clientDAO.getAllClientsSorted();
     }
@@ -61,6 +66,23 @@ public class ClientController {
     }
 
     public void deleteClient(int id) throws SQLException {
+        clientDAO.deleteClient(id);
+    }
+
+    // Новый метод для каскадного удаления клиента
+    public void deleteClientWithCascade(int id) throws SQLException {
+        // Находим все бронирования клиента
+        List<model.Booking> clientBookings = bookingDAO.getBookingsByClientId(id);
+
+        // Удаляем все платежи, связанные с бронированиями клиента
+        for (model.Booking booking : clientBookings) {
+            paymentDAO.deletePaymentsByBookingId(booking.getId());
+        }
+
+        // Удаляем все бронирования клиента
+        bookingDAO.deleteBookingsByClientId(id);
+
+        // Удаляем самого клиента
         clientDAO.deleteClient(id);
     }
 }

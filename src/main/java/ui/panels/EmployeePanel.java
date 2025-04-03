@@ -13,9 +13,11 @@ import java.util.List;
 
 public class EmployeePanel extends TablePanel {
     private final EmployeeController controller = new EmployeeController();
+    private final BookingPanel bookingPanel; // Ссылка на BookingPanel
 
-    public EmployeePanel() {
+    public EmployeePanel(BookingPanel bookingPanel) {
         super("Employees Management");
+        this.bookingPanel = bookingPanel;
         initTableModel();
     }
 
@@ -53,21 +55,58 @@ public class EmployeePanel extends TablePanel {
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
 
-            int confirm = JOptionPane.showConfirmDialog(
-                    this,
-                    "Delete this employee and reassign bookings?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION
-            );
-
-            if (confirm == JOptionPane.YES_OPTION) {
-                try {
-                    controller.deleteEmployee(id);
-                    safeRefresh();
-                } catch (SQLException ex) {
-                    showError("Delete failed: " + ex.getMessage());
+            try {
+                // Проверяем, существует ли сотрудник
+                if (!controller.employeeExists(id)) {
+                    showError("Employee not found!");
+                    return;
                 }
+
+                // Находим другого сотрудника для переназначения бронирований
+                Integer replacementId = controller.findFirstEmployeeId();
+                if (replacementId != null && replacementId == id) {
+                    replacementId = controller.findFirstEmployeeId(id);
+                }
+
+                if (replacementId == null) {
+                    showError("Cannot delete - no other employees available!");
+                    return;
+                }
+
+                // Подтверждение удаления
+                int confirm = JOptionPane.showConfirmDialog(
+                        this,
+                        "Delete this employee? All bookings will be reassigned to employee ID: " + replacementId,
+                        "Confirm Deletion",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Переназначаем бронирования и удаляем сотрудника
+                    controller.deleteEmployeeWithReassignment(id, replacementId);
+                    safeRefresh();
+                    if (bookingPanel != null) {
+                        bookingPanel.refreshData(); // Обновляем BookingPanel
+                    }
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Employee deleted successfully! Bookings reassigned to employee ID: " + replacementId,
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                } else {
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Deletion canceled",
+                            "Info",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+            } catch (SQLException ex) {
+                showError("Delete failed: " + ex.getMessage());
             }
+        } else {
+            showError("Please select an employee to delete");
         }
     }
 

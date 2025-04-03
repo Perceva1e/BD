@@ -12,9 +12,13 @@ import java.util.List;
 
 public class ClientPanel extends TablePanel {
     private final ClientController controller = new ClientController();
+    private final BookingPanel bookingPanel; // Ссылка на BookingPanel
+    private final PaymentPanel paymentPanel; // Ссылка на PaymentPanel
 
-    public ClientPanel() {
+    public ClientPanel(BookingPanel bookingPanel, PaymentPanel paymentPanel) {
         super("Clients Management");
+        this.bookingPanel = bookingPanel;
+        this.paymentPanel = paymentPanel;
         initTableModel();
     }
 
@@ -54,18 +58,40 @@ public class ClientPanel extends TablePanel {
         if (row >= 0) {
             int id = (int) table.getModel().getValueAt(row, 0);
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Delete client and all related data?",
+                    "Delete client and all related data (bookings and payments)?",
                     "Confirm Deletion",
                     JOptionPane.YES_NO_OPTION);
 
             if (confirm == JOptionPane.YES_OPTION) {
                 try {
-                    controller.deleteClient(id);
+                    controller.deleteClientWithCascade(id); // Используем новый метод
                     refreshData();
+                    // Обновляем связанные панели
+                    if (bookingPanel != null) {
+                        bookingPanel.refreshData();
+                    }
+                    if (paymentPanel != null) {
+                        paymentPanel.refreshData();
+                    }
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Client and all related data deleted successfully!",
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
                 } catch (SQLException ex) {
                     showError("Error deleting client: " + ex.getMessage());
                 }
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Deletion canceled",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
             }
+        } else {
+            showError("Please select a client to delete");
         }
     }
 

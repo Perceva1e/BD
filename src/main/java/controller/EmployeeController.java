@@ -1,6 +1,7 @@
 package controller;
 
 import dao.EmployeeDAO;
+import dao.BookingDAO; // Добавляем импорт для BookingDAO
 import model.Employee;
 import service.EmployeeService;
 
@@ -8,11 +9,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
 import validation.InputValidator;
+
 public class EmployeeController {
     private final EmployeeService employeeService;
     private final EmployeeDAO employeeDAO = new EmployeeDAO();
+    private final BookingDAO bookingDAO = new BookingDAO(); // Добавляем BookingDAO
     private final Scanner scanner;
     private final InputValidator inputValidator;
+
     public EmployeeController() {
         this.employeeService = new EmployeeService();
         this.scanner = new Scanner(System.in);
@@ -43,6 +47,7 @@ public class EmployeeController {
             }
         }
     }
+
     public List<Employee> getAllEmployees() throws SQLException {
         return employeeDAO.getAllEmployees();
     }
@@ -51,14 +56,38 @@ public class EmployeeController {
         return employeeDAO.getEmployeeById(id);
     }
 
-    public void deleteEmployee(int id) throws SQLException {
-        employeeDAO.deleteEmployee(id);
-    }
     public void addEmployee(Employee employee) throws SQLException {
         employeeDAO.addEmployee(employee);
     }
 
     public void updateEmployee(Employee employee) throws SQLException {
         employeeDAO.updateEmployee(employee);
+    }
+
+    public void deleteEmployee(int id) throws SQLException {
+        employeeDAO.deleteEmployee(id);
+    }
+
+    // Проверяем, существует ли сотрудник
+    public boolean employeeExists(int employeeId) throws SQLException {
+        return employeeDAO.employeeExists(employeeId);
+    }
+
+    // Находим первого сотрудника (для переназначения)
+    public Integer findFirstEmployeeId() throws SQLException {
+        return employeeDAO.findFirstEmployeeId();
+    }
+
+    // Находим первого сотрудника, кроме указанного
+    public Integer findFirstEmployeeId(int excludeId) throws SQLException {
+        return employeeDAO.findFirstEmployeeId("WHERE id != ?", excludeId);
+    }
+
+    // Удаление сотрудника с переназначением бронирований
+    public void deleteEmployeeWithReassignment(int id, int replacementId) throws SQLException {
+        // Переназначаем бронирования
+        bookingDAO.updateBookingsEmployee(id, replacementId);
+        // Удаляем сотрудника
+        employeeDAO.deleteEmployee(id);
     }
 }

@@ -4,23 +4,30 @@ import controller.BookingController;
 import model.Booking;
 import ui.components.TablePanel;
 import ui.dialogs.BookingFormDialog;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-public class BookingPanel extends TablePanel {
+public class BookingPanel extends TablePanel implements Refreshable {
     private final BookingController controller = new BookingController();
+    private Refreshable paymentPanel; // Ссылка на PaymentPanel для обновления
 
     public BookingPanel() {
         super("Bookings Management");
         initTableModel();
     }
 
+    // Метод для установки ссылки на PaymentPanel
+    public void setPaymentPanel(Refreshable paymentPanel) {
+        this.paymentPanel = paymentPanel;
+    }
+
     private void initTableModel() {
         try {
-            refreshData();
+            refreshDataInternal();
         } catch (SQLException ex) {
             showError(ex.getMessage());
             table.setModel(new BookingTableModel(Collections.emptyList()));
@@ -43,6 +50,8 @@ public class BookingPanel extends TablePanel {
             } catch (SQLException ex) {
                 showError("Database error: " + ex.getMessage());
             }
+        } else {
+            showError("Please select a booking to edit");
         }
     }
 
@@ -63,14 +72,42 @@ public class BookingPanel extends TablePanel {
                 try {
                     controller.deleteBooking(id);
                     safeRefresh();
+                    // Обновляем PaymentPanel, если он установлен
+                    if (paymentPanel != null) {
+                        paymentPanel.refreshData();
+                    }
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "Booking and related payments deleted successfully!",
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
                 } catch (SQLException ex) {
                     showError("Delete failed: " + ex.getMessage());
                 }
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Deletion canceled",
+                        "Info",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
             }
+        } else {
+            showError("Please select a booking to delete");
         }
     }
 
-    private void refreshData() throws SQLException {
+    @Override
+    public void refreshData() {
+        try {
+            refreshDataInternal();
+        } catch (SQLException ex) {
+            showError("Failed to refresh: " + ex.getMessage());
+        }
+    }
+
+    private void refreshDataInternal() throws SQLException {
         List<Booking> bookings = controller.getAllBookings();
         table.setModel(new BookingTableModel(bookings));
         table.repaint();
@@ -78,7 +115,7 @@ public class BookingPanel extends TablePanel {
 
     private void safeRefresh() {
         try {
-            refreshData();
+            refreshDataInternal();
         } catch (SQLException ex) {
             showError("Failed to refresh: " + ex.getMessage());
         }
@@ -96,9 +133,20 @@ public class BookingPanel extends TablePanel {
             this.bookings = bookings != null ? bookings : Collections.emptyList();
         }
 
-        @Override public int getRowCount() { return bookings.size(); }
-        @Override public int getColumnCount() { return columns.length; }
-        @Override public String getColumnName(int col) { return columns[col]; }
+        @Override
+        public int getRowCount() {
+            return bookings.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columns.length;
+        }
+
+        @Override
+        public String getColumnName(int col) {
+            return columns[col];
+        }
 
         @Override
         public Object getValueAt(int row, int col) {

@@ -51,13 +51,23 @@ public class HotelApp {
 
                 JTabbedPane tabbedPane = new JTabbedPane();
 
-                tabbedPane.addTab("🏨 Clients", new ClientPanel());
-                tabbedPane.addTab("📅 Bookings", new BookingPanel());
-                tabbedPane.addTab("👥 Employees", new EmployeePanel());
-                tabbedPane.addTab("🛏️ Rooms", new RoomPanel());
-                tabbedPane.addTab("⭐ Room Types", new RoomTypePanel());
+                BookingPanel bookingPanel = new BookingPanel();
+                PaymentPanel paymentPanel = new PaymentPanel();
+                ClientPanel clientPanel = new ClientPanel(bookingPanel, paymentPanel); // Передаем BookingPanel и PaymentPanel
+                RoomPanel roomPanel = new RoomPanel();
+                RoomTypePanel roomTypePanel = new RoomTypePanel(roomPanel);
+                EmployeePanel employeePanel = new EmployeePanel(bookingPanel);
+
+                roomPanel.setRoomTypePanel(roomTypePanel);
+                bookingPanel.setPaymentPanel(paymentPanel);
+
+                tabbedPane.addTab("🏨 Clients", clientPanel);
+                tabbedPane.addTab("📅 Bookings", bookingPanel);
+                tabbedPane.addTab("👥 Employees", employeePanel);
+                tabbedPane.addTab("🛏️ Rooms", roomPanel);
+                tabbedPane.addTab("⭐ Room Types", roomTypePanel);
                 tabbedPane.addTab("🛎️ Services", new ServicePanel());
-                tabbedPane.addTab("💳 Payments", new PaymentPanel());
+                tabbedPane.addTab("💳 Payments", paymentPanel);
                 tabbedPane.addTab("📦 Backup", new BackupPanel());
                 tabbedPane.addTab("📊 Reports", new ReportPanel());
 

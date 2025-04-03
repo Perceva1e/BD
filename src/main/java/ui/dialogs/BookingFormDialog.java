@@ -5,12 +5,12 @@ import dao.ClientDAO;
 import dao.EmployeeDAO;
 import model.Booking;
 import validation.InputValidator;
+
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
 
 public class BookingFormDialog extends JDialog {
     private final JTextField txtClientId = new JTextField(10);
@@ -24,6 +24,8 @@ public class BookingFormDialog extends JDialog {
     private final BookingController controller;
     private final Runnable onSuccess;
     private final InputValidator validator = new InputValidator();
+    private final ClientDAO clientDAO = new ClientDAO();
+    private final EmployeeDAO employeeDAO = new EmployeeDAO();
 
     public BookingFormDialog(Booking booking, BookingController controller, Runnable onSuccess) {
         this.controller = controller;
@@ -81,21 +83,25 @@ public class BookingFormDialog extends JDialog {
             int clientId = 0;
             try {
                 clientId = Integer.parseInt(txtClientId.getText().trim());
-                if (!new ClientDAO().clientExists(clientId)) {
+                if (!clientDAO.clientExists(clientId)) {
                     errors.append("• Client ID does not exist\n");
                 }
-            } catch (NumberFormatException | SQLException e) {
+            } catch (NumberFormatException e) {
                 errors.append("• Invalid Client ID format\n");
+            } catch (SQLException e) {
+                errors.append("• Error verifying Client ID: " + e.getMessage() + "\n");
             }
 
             int employeeId = 0;
             try {
                 employeeId = Integer.parseInt(txtEmployeeId.getText().trim());
-                if (!new EmployeeDAO().employeeExists(employeeId)) {
+                if (!employeeDAO.employeeExists(employeeId)) {
                     errors.append("• Employee ID does not exist\n");
                 }
-            } catch (NumberFormatException | SQLException e) {
+            } catch (NumberFormatException e) {
                 errors.append("• Invalid Employee ID format\n");
+            } catch (SQLException e) {
+                errors.append("• Error verifying Employee ID: " + e.getMessage() + "\n");
             }
 
             LocalDate checkIn = null;
@@ -137,6 +143,9 @@ public class BookingFormDialog extends JDialog {
             }
 
             Booking booking = new Booking();
+            if (controller.getBookingById(0) != null) { // Проверка на редактирование
+                booking.setId(controller.getBookingById(0).getId());
+            }
             booking.setClientId(clientId);
             booking.setEmployeeId(employeeId);
             booking.setCheckInDate(checkIn);

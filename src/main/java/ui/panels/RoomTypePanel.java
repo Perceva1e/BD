@@ -7,13 +7,16 @@ import ui.dialogs.RoomTypeFormDialog;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class RoomTypePanel extends TablePanel {
     private final RoomTypeController controller = new RoomTypeController();
+    private final RoomPanel roomPanel; // Ссылка на RoomPanel
 
-    public RoomTypePanel() {
+    public RoomTypePanel(RoomPanel roomPanel) {
         super("Room Types Management");
+        this.roomPanel = roomPanel;
         initTableModel();
     }
 
@@ -23,6 +26,7 @@ public class RoomTypePanel extends TablePanel {
             table.setModel(new RoomTypeTableModel(types));
         } catch (SQLException ex) {
             showError(ex.getMessage());
+            table.setModel(new RoomTypeTableModel(Collections.emptyList()));
         }
     }
 
@@ -62,6 +66,9 @@ public class RoomTypePanel extends TablePanel {
                 try {
                     controller.deleteRoomType(id);
                     refreshData();
+                    if (roomPanel != null) {
+                        roomPanel.refreshData(); // Обновляем RoomPanel после удаления
+                    }
                 } catch (SQLException ex) {
                     showError("Delete error: " + ex.getMessage());
                 }
@@ -69,7 +76,7 @@ public class RoomTypePanel extends TablePanel {
         }
     }
 
-    private void refreshData() {
+    public void refreshData() { // Оставляем публичным
         initTableModel();
         table.repaint();
     }
@@ -83,7 +90,7 @@ public class RoomTypePanel extends TablePanel {
         private final String[] columns = {"ID", "Name", "Comfort", "Category", "Cost/Night"};
 
         public RoomTypeTableModel(List<RoomType> types) {
-            this.types = types;
+            this.types = types != null ? types : Collections.emptyList();
         }
 
         @Override public int getRowCount() { return types.size(); }

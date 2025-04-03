@@ -4,13 +4,14 @@ import controller.PaymentController;
 import model.Payment;
 import ui.components.TablePanel;
 import ui.dialogs.PaymentFormDialog;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 
-public class PaymentPanel extends TablePanel {
+public class PaymentPanel extends TablePanel implements Refreshable {
     private final PaymentController controller = new PaymentController();
 
     public PaymentPanel() {
@@ -20,7 +21,7 @@ public class PaymentPanel extends TablePanel {
 
     private void initialize() {
         try {
-            refreshData();
+            refreshDataInternal();
         } catch (SQLException ex) {
             showError("Initialization error: " + ex.getMessage());
             table.setModel(new PaymentTableModel(Collections.emptyList()));
@@ -75,7 +76,16 @@ public class PaymentPanel extends TablePanel {
         }
     }
 
-    private void refreshData() throws SQLException {
+    @Override
+    public void refreshData() {
+        try {
+            refreshDataInternal();
+        } catch (SQLException ex) {
+            showError("Refresh error: " + ex.getMessage());
+        }
+    }
+
+    private void refreshDataInternal() throws SQLException {
         List<Payment> payments = controller.getAllPayments();
         table.setModel(new PaymentTableModel(payments));
         table.repaint();
@@ -83,7 +93,7 @@ public class PaymentPanel extends TablePanel {
 
     private void safeRefresh() {
         try {
-            refreshData();
+            refreshDataInternal();
         } catch (SQLException ex) {
             showError("Refresh error: " + ex.getMessage());
         }
@@ -101,9 +111,20 @@ public class PaymentPanel extends TablePanel {
             this.payments = payments != null ? payments : Collections.emptyList();
         }
 
-        @Override public int getRowCount() { return payments.size(); }
-        @Override public int getColumnCount() { return columns.length; }
-        @Override public String getColumnName(int col) { return columns[col]; }
+        @Override
+        public int getRowCount() {
+            return payments.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return columns.length;
+        }
+
+        @Override
+        public String getColumnName(int col) {
+            return columns[col];
+        }
 
         @Override
         public Object getValueAt(int row, int col) {
